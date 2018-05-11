@@ -73,7 +73,19 @@ func fileExists(path string) bool {
 
 func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApi: url=%s from=%s", r.URL.Path, r.RemoteAddr)
-	io.WriteString(w, "api")
+
+	io.WriteString(w, `
+<html> 
+<title>
+<head>disbalance api</head>
+</title>
+<body>
+<p>welcome to the api</p>
+<a href="/console">console</a>
+</body>
+</html>
+`)
+
 }
 
 type httpHandler struct {
