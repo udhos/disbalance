@@ -9,4 +9,4 @@ go tool vet ./disbalance
 go test -v ./disbalance
 go install ./disbalance
 
-gopherjs build -v ./console -o ./run/console/console.js
+gopherjs build ./disbalance -o ./run/console/console.js

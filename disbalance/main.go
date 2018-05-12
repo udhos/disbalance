@@ -74,15 +74,19 @@ func fileExists(path string) bool {
 func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApi: url=%s from=%s", r.URL.Path, r.RemoteAddr)
 
-	io.WriteString(w, `
-<html> 
+	io.WriteString(w,
+		`<!DOCTYPE html>
+<html lang="en-US">
+
 <title>
 <head>disbalance api</head>
 </title>
+
 <body>
 <p>welcome to the api</p>
 <a href="/console">console</a>
 </body>
+
 </html>
 `)
 
