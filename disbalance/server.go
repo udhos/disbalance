@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
 	"net/http"
 	"sync"
 
@@ -32,9 +34,38 @@ type config struct {
 }
 
 type server struct {
-	cfg  config
-	apis []string
-	lock sync.RWMutex
+	cfg        config
+	configPath string
+	apis       []string
+	lock       sync.RWMutex
+}
+
+func (s *server) configSave() {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+	buf, errYaml := yaml.Marshal(s.cfg)
+	if errYaml != nil {
+		log.Printf("configSave: marshal: %s: %v", s.configPath, errYaml)
+		return
+	}
+	if err := ioutil.WriteFile(s.configPath, buf, 0777); err != nil {
+		log.Printf("configSave: %s: %v", s.configPath, err)
+	}
+	log.Printf("configSave: %s", s.configPath)
+}
+
+func (s *server) configLoad() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	buf, errRead := ioutil.ReadFile(s.configPath)
+	if errRead != nil {
+		log.Printf("configLoad: %s: %v", s.configPath, errRead)
+	}
+	if err := yaml.Unmarshal(buf, &s.cfg); err != nil {
+		log.Printf("configLoad: unmarshal: %s: %v", s.configPath, err)
+		return
+	}
+	log.Printf("configLoad: %s", s.configPath)
 }
 
 func (s *server) auth(user, pass string) bool {
