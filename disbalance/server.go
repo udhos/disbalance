@@ -143,6 +143,7 @@ SCAN_NEW:
 
 		for old, oldRule := range s.cfg.Rules {
 			if newRule.Name == oldRule.Name {
+				// new rule found
 				// update old rule
 
 				log.Printf("post FIXME WRITEME")
@@ -153,6 +154,7 @@ SCAN_NEW:
 			}
 		}
 
+		// new rule not found
 		// append new rule
 		s.cfg.Rules = append(s.cfg.Rules, newRule)
 	}
