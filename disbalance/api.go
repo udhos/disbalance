@@ -158,12 +158,38 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 	writeStr("serveApi", w, `</ul>
 <p>Rules:</p>
 <ul>
+<table border>
+<thead>
+<th>Rule</th>
+<th>Listeners</th>
+<th>Targets</th>
+</thead>
+<tbody>
 `)
 	for _, r := range rules {
-		writeStr("serveApi", w, fmt.Sprintf(`<li><a href="/api/rule/%s">/api/rule/%s</a></li>`, r.Name, r.Name)+"\n")
+		writeStr("serveApi", w, fmt.Sprintf(`
+<tr>
+<td><a href="/api/rule/%s">/api/rule/%s</a></td>
+`, r.Name, r.Name))
+
+		writeStr("serveApi", w, "<td>")
+		for l := range r.Listeners {
+			writeStr("serveApi", w, l)
+		}
+		writeStr("serveApi", w, "</td>\n")
+
+		writeStr("serveApi", w, "<td>")
+		for a := range r.Targets {
+			writeStr("serveApi", w, a)
+		}
+		writeStr("serveApi", w, "</td>\n")
+
+		writeStr("serveApi", w, "</tr>\n")
 	}
 
 	writeStr("serveApi", w, `</ul>
+</tbody>
+</table>
 </body>
 </html>`)
 
