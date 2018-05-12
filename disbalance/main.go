@@ -15,11 +15,11 @@ const (
 func main() {
 
 	var app server
-	app.cfg.basicAuthUser = "admin"
-	app.cfg.basicAuthPass = "admin"
-	app.cfg.rules = []rule{{"rule0"}, {"rule1"}}
+	app.cfg.BasicAuthUser = "admin"
+	app.cfg.BasicAuthPass = "admin"
+	app.cfg.Rules = []rule{{Name: "rule0", Protocol: "tcp"}, {Name: "rule1", Protocol: "tcp"}}
 
-	log.Printf("version %s runtime %s", version, runtime.Version())
+	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))
 
 	var configPath, controlAddress, consoleDir string
 	var key, cert string
@@ -44,11 +44,11 @@ func main() {
 	}
 
 	registerApi(&app, "/api/", serveApi)
-	registerApi(&app, "/api/rule", serveApiRule)
+	registerApi(&app, "/api/rule/", serveApiRule)
 
 	registerStatic(&app, "/console/", consoleDir)
 
-	log.Printf("api credentials: user=%s pass=%s", app.cfg.basicAuthUser, app.cfg.basicAuthPass)
+	log.Printf("api credentials: user=%s pass=%s", app.cfg.BasicAuthUser, app.cfg.BasicAuthPass)
 
 	if tls {
 		log.Printf("serving HTTPS on TCP %s", controlAddress)

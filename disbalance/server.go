@@ -7,14 +7,28 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type healthCheck struct {
+	Interval int
+	Timeout  int
+	Address  string // if empty defaults to target address
+}
+
+type target struct {
+	Address string
+	Check   healthCheck
+}
+
 type rule struct {
-	Name string
+	Name      string
+	Protocol  string
+	Listeners []string
+	Targets   []target
 }
 
 type config struct {
-	basicAuthUser string
-	basicAuthPass string
-	rules         []rule
+	BasicAuthUser string
+	BasicAuthPass string
+	Rules         []rule
 }
 
 type server struct {
@@ -26,7 +40,7 @@ type server struct {
 func (s *server) auth(user, pass string) bool {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
-	return user == s.cfg.basicAuthUser && pass == s.cfg.basicAuthPass
+	return user == s.cfg.BasicAuthUser && pass == s.cfg.BasicAuthPass
 }
 
 func (s *server) apiList() []string {
@@ -38,7 +52,7 @@ func (s *server) apiList() []string {
 func (s *server) ruleList() ([]byte, error) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
-	return yaml.Marshal(s.cfg.rules)
+	return yaml.Marshal(s.cfg.Rules)
 }
 
 func auth(w http.ResponseWriter, r *http.Request, app *server) bool {

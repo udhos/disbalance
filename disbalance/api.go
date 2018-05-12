@@ -22,6 +22,15 @@ func serveApiRule(w http.ResponseWriter, r *http.Request, app *server) {
 		return
 	}
 
+	switch r.Method {
+	case http.MethodGet:
+		ruleGet(w, r, app)
+	default:
+		http.Error(w, "Method not supported", 405)
+	}
+}
+
+func ruleGet(w http.ResponseWriter, r *http.Request, app *server) {
 	out, errList := app.ruleList()
 	if errList != nil {
 		log.Printf("serveApiRuleList: ruleList: %v", errList)
@@ -50,10 +59,11 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 <body>
 <p>welcome to the api</p>
 <a href="/console">console</a>
-<ul>`)
+<ul>
+`)
 
 	for _, a := range apis {
-		io.WriteString(w, fmt.Sprintf(`<li><a href="%s">%s</a></li>`, a, a))
+		io.WriteString(w, fmt.Sprintf(`<li><a href="%s">%s</a></li>`, a, a)+"\n")
 	}
 
 	io.WriteString(w, `</ul>
