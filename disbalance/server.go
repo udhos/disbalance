@@ -110,13 +110,13 @@ func (s *server) ruleGet(name string) (rule, error) {
 	return rule{}, fmt.Errorf("rule not found")
 }
 
-func unsafeDeleteRule(rules []rule, i int) {
+func unsafeDeleteRule(rules *[]rule, i int) {
 	// Delete without preserving order
 	// https://github.com/golang/go/wiki/SliceTricks#delete-without-preserving-order
 
-	newSize := len(rules) - 1
-	rules[i] = rules[newSize]
-	rules = rules[:newSize]
+	newSize := len(*rules) - 1
+	(*rules)[i] = (*rules)[newSize]
+	(*rules) = (*rules)[:newSize]
 }
 
 func (s *server) ruleDel(name string) error {
@@ -125,7 +125,7 @@ func (s *server) ruleDel(name string) error {
 
 	for i, r := range s.cfg.Rules {
 		if r.Name == name {
-			unsafeDeleteRule(s.cfg.Rules, i)
+			unsafeDeleteRule(&s.cfg.Rules, i)
 			unsafeSave(&s.cfg, s.configPath)
 			return nil
 		}
@@ -138,18 +138,23 @@ func (s *server) rulePost(rules []rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+SCAN_NEW:
 	for _, newRule := range rules {
+
 		for old, oldRule := range s.cfg.Rules {
 			if newRule.Name == oldRule.Name {
 				// update old rule
-				log.Printf("rulePost FIXME WRITEME")
-				unsafeDeleteRule(s.cfg.Rules, old)
+
+				log.Printf("post FIXME WRITEME")
+
+				unsafeDeleteRule(&s.cfg.Rules, old)
 				s.cfg.Rules = append(s.cfg.Rules, newRule)
-				continue
+				continue SCAN_NEW
 			}
-			// append new rule
-			s.cfg.Rules = append(s.cfg.Rules, newRule)
 		}
+
+		// append new rule
+		s.cfg.Rules = append(s.cfg.Rules, newRule)
 	}
 
 	unsafeSave(&s.cfg, s.configPath)
