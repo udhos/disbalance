@@ -108,9 +108,9 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 
 	writeStr("serveApi", w, `<!DOCTYPE html>
 <html lang="en-US">
-<title>
-<head>disbalance api</head>
-</title>
+<head>
+<title>disbalance api</title>
+</head>
 <body>
 <p>welcome to disbalance api</p>
 <a href="/console">console</a>
