@@ -112,7 +112,7 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 <head>disbalance api</head>
 </title>
 <body>
-<p>welcome to the api</p>
+<p>welcome to disbalance api</p>
 <a href="/console">console</a>
 
 <p>APIs:</p>
