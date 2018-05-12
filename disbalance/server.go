@@ -29,6 +29,8 @@ type rule struct {
 
 func ruleUpdate(old, update rule) rule {
 	r := rule{
+		Name:      old.Name,
+		Protocol:  old.Protocol,
 		Listeners: map[string]struct{}{},
 		Targets:   map[string]target{},
 	}
