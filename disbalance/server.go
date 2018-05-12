@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -41,8 +42,8 @@ type server struct {
 }
 
 func (s *server) configSave() {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
+	s.lock.Lock() // exclusive lock: will write on shared file s.configPath
+	defer s.lock.Unlock()
 	buf, errYaml := yaml.Marshal(s.cfg)
 	if errYaml != nil {
 		log.Printf("configSave: marshal: %s: %v", s.configPath, errYaml)
@@ -55,7 +56,7 @@ func (s *server) configSave() {
 }
 
 func (s *server) configLoad() {
-	s.lock.Lock()
+	s.lock.Lock() // exclusive lock: will write on shared s.cfg
 	defer s.lock.Unlock()
 	buf, errRead := ioutil.ReadFile(s.configPath)
 	if errRead != nil {
@@ -80,10 +81,25 @@ func (s *server) apiList() []string {
 	return s.apis
 }
 
-func (s *server) ruleList() ([]byte, error) {
+func (s *server) ruleList() []rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
-	return yaml.Marshal(s.cfg.Rules)
+	return s.cfg.Rules
+}
+
+func (s *server) ruleDump() ([]byte, error) {
+	return yaml.Marshal(s.ruleList())
+}
+
+func (s *server) ruleGet(name string) (rule, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+	for _, r := range s.cfg.Rules {
+		if r.Name == name {
+			return r, nil
+		}
+	}
+	return rule{}, fmt.Errorf("rule not found")
 }
 
 func auth(w http.ResponseWriter, r *http.Request, app *server) bool {
