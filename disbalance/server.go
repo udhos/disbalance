@@ -44,7 +44,7 @@ func ruleUpdate(old, update rule) rule {
 		r.Protocol = update.Protocol
 	}
 	if update.Listener != "" {
-		r.Protocol = update.Listener
+		r.Listener = update.Listener
 	}
 	for a, t := range update.Targets {
 		r.Targets[a] = t
