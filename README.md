@@ -20,3 +20,25 @@ If you want to use TLS, you will need a certificate:
 
 Then start disbalance and open https://localhost:8080/console
 
+API
+===
+
+Get rule list:
+
+    curl -u admin:admin localhost:8080/api/rule/
+
+Delete rule 'rule1':
+
+    curl -u admin:admin -X DELETE localhost:8080/api/rule/rule1
+
+Create inline rule 'rule1':
+
+    curl -u admin:admin -X POST -d '[{name: rule1, protocol: tcp, listener: ":8000", targets: {":8000": {check: {interval: 10, timeout: 5, minimum: 3, address: 1.1.1.1}}}}]' localhost:8080/api/rule/
+
+Save rule list to file 'rules':
+
+    curl -u admin:admin localhost:8080/api/rule/ > rules
+
+Load rule list from file 'rules':
+
+    curl -u admin:admin --data-binary @rules -X POST localhost:8080/api/rule/

@@ -59,8 +59,6 @@ func main() {
 
 	registerStatic(&app, "/console/", consoleDir)
 
-	log.Printf("api credentials: user=%s pass=%s", app.cfg.BasicAuthUser, app.cfg.BasicAuthPass)
-
 	if tls {
 		log.Printf("serving HTTPS on TCP %s", controlAddress)
 		if err := http.ListenAndServeTLS(controlAddress, cert, key, nil); err != nil {
