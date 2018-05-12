@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"sync"
 )
 
 const (
@@ -14,15 +15,26 @@ const (
 )
 
 type config struct {
+	basicAuthUser string
+	basicAuthPass string
 }
 
 type server struct {
-	cfg config
+	cfg  config
+	lock sync.RWMutex
+}
+
+func (s *server) auth(user, pass string) bool {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+	return user == s.cfg.basicAuthUser && pass == s.cfg.basicAuthPass
 }
 
 func main() {
 
 	var app server
+	app.cfg.basicAuthUser = "admin"
+	app.cfg.basicAuthPass = "admin"
 
 	log.Printf("version %s runtime %s", version, runtime.Version())
 
@@ -52,6 +64,8 @@ func main() {
 
 	registerStatic(&app, "/console/", consoleDir)
 
+	log.Printf("api credentials: user=%s pass=%s", app.cfg.basicAuthUser, app.cfg.basicAuthPass)
+
 	if tls {
 		log.Printf("serving HTTPS on TCP %s", controlAddress)
 		if err := http.ListenAndServeTLS(controlAddress, cert, key, nil); err != nil {
@@ -71,8 +85,30 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
+func auth(w http.ResponseWriter, r *http.Request, app *server) bool {
+
+	w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+
+	username, password, authOK := r.BasicAuth()
+	if !authOK {
+		http.Error(w, "Not authorized", 401)
+		return false
+	}
+
+	if !app.auth(username, password) {
+		http.Error(w, "Not authorized", 401)
+		return false
+	}
+
+	return true
+}
+
 func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApi: url=%s from=%s", r.URL.Path, r.RemoteAddr)
+
+	if authOk := auth(w, r, app); !authOk {
+		return
+	}
 
 	io.WriteString(w,
 		`<!DOCTYPE html>
