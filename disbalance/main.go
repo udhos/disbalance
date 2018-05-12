@@ -18,13 +18,21 @@ func main() {
 
 	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))
 
+	runDir := os.Getenv("DISBALANCE_RUN")
+	if runDir == "" {
+		runDir = "run/"
+	} else if runDir[len(runDir)-1] != '/' {
+		runDir += "/"
+	}
+	log.Printf("run directory: %s", runDir)
+
 	var controlAddress, consoleDir string
 	var key, cert string
 
-	flag.StringVar(&key, "key", "key.pem", "TLS key file")
-	flag.StringVar(&cert, "cert", "cert.pem", "TLS cert file")
-	flag.StringVar(&app.configPath, "config", "run/disbalance.conf", "config path")
-	flag.StringVar(&consoleDir, "console", "run/console", "console directory")
+	flag.StringVar(&key, "key", runDir+"key.pem", "TLS key file")
+	flag.StringVar(&cert, "cert", runDir+"cert.pem", "TLS cert file")
+	flag.StringVar(&app.configPath, "config", runDir+"disbalance.conf", "config path")
+	flag.StringVar(&consoleDir, "console", runDir+"console", "console directory")
 	flag.StringVar(&controlAddress, "addr", ":8080", "control address")
 	flag.Parse()
 
