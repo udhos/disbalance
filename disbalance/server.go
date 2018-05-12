@@ -17,21 +17,46 @@ type healthCheck struct {
 }
 
 type target struct {
-	Address string
-	Check   healthCheck
+	Check healthCheck
 }
 
 type rule struct {
 	Name      string
 	Protocol  string
-	Listeners []string
-	Targets   []target
+	Listeners map[string]struct{}
+	Targets   map[string]target
+}
+
+func ruleUpdate(old, update rule) rule {
+	r := rule{
+		Listeners: map[string]struct{}{},
+		Targets:   map[string]target{},
+	}
+	// copy from old
+	for l := range old.Listeners {
+		r.Listeners[l] = struct{}{}
+	}
+	for a, t := range old.Targets {
+		r.Targets[a] = t
+	}
+	// copy from new
+	if update.Protocol != "" {
+		r.Protocol = update.Protocol
+	}
+	for l := range update.Listeners {
+		r.Listeners[l] = struct{}{}
+	}
+	for a, t := range update.Targets {
+		log.Printf("target[%s]=%v", a, t)
+		r.Targets[a] = t
+	}
+	return r
 }
 
 type config struct {
 	BasicAuthUser string
 	BasicAuthPass string
-	Rules         []rule
+	Rules         map[string]rule
 }
 
 type server struct {
@@ -92,7 +117,13 @@ func (s *server) apiList() []string {
 func (s *server) ruleList() []rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
-	return s.cfg.Rules
+
+	var rules []rule
+	for _, r := range s.cfg.Rules {
+		rules = append(rules, r)
+	}
+
+	return rules
 }
 
 func (s *server) ruleDump() ([]byte, error) {
@@ -110,53 +141,30 @@ func (s *server) ruleGet(name string) (rule, error) {
 	return rule{}, fmt.Errorf("rule not found")
 }
 
-func unsafeDeleteRule(rules *[]rule, i int) {
-	// Delete without preserving order
-	// https://github.com/golang/go/wiki/SliceTricks#delete-without-preserving-order
-
-	newSize := len(*rules) - 1
-	(*rules)[i] = (*rules)[newSize]
-	(*rules) = (*rules)[:newSize]
-}
-
-func (s *server) ruleDel(name string) error {
+func (s *server) ruleDel(name string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	for i, r := range s.cfg.Rules {
-		if r.Name == name {
-			unsafeDeleteRule(&s.cfg.Rules, i)
-			unsafeSave(&s.cfg, s.configPath)
-			return nil
-		}
-	}
-
-	return fmt.Errorf("rule not found")
+	delete(s.cfg.Rules, name)
 }
 
 func (s *server) rulePost(rules []rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-SCAN_NEW:
 	for _, newRule := range rules {
 
-		for old, oldRule := range s.cfg.Rules {
-			if newRule.Name == oldRule.Name {
-				// new rule found
-				// update old rule
-
-				log.Printf("post FIXME WRITEME")
-
-				unsafeDeleteRule(&s.cfg.Rules, old)
-				s.cfg.Rules = append(s.cfg.Rules, newRule)
-				continue SCAN_NEW
-			}
+		if oldRule, found := s.cfg.Rules[newRule.Name]; found {
+			// new rule found
+			// update old rule
+			update := ruleUpdate(oldRule, newRule)
+			s.cfg.Rules[newRule.Name] = update
+			continue
 		}
 
 		// new rule not found
 		// append new rule
-		s.cfg.Rules = append(s.cfg.Rules, newRule)
+		s.cfg.Rules[newRule.Name] = newRule
 	}
 
 	unsafeSave(&s.cfg, s.configPath)

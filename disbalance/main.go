@@ -15,6 +15,9 @@ const (
 func main() {
 
 	var app server
+	app.cfg = config{
+		Rules: map[string]rule{},
+	}
 
 	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))
 

@@ -67,13 +67,9 @@ func ruleDelete(w http.ResponseWriter, r *http.Request, app *server) {
 		return
 	}
 
-	if err := app.ruleDel(name); err != nil {
-		log.Printf("ruleDelete: %s: %v", name, err)
-		http.Error(w, "Not found", 404)
-		return
-	}
+	app.ruleDel(name)
 
-	http.Error(w, "Rule "+name+" deleted", 200)
+	http.Error(w, "Ok", 200)
 }
 
 func ruleGet(w http.ResponseWriter, r *http.Request, app *server) {
