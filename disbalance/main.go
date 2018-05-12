@@ -8,15 +8,22 @@ import (
 	"os"
 	"runtime"
 	"sync"
+
+	"gopkg.in/yaml.v2"
 )
 
 const (
 	version = "0.0"
 )
 
+type rule struct {
+	Name string
+}
+
 type config struct {
 	basicAuthUser string
 	basicAuthPass string
+	rules         []rule
 }
 
 type server struct {
@@ -30,11 +37,18 @@ func (s *server) auth(user, pass string) bool {
 	return user == s.cfg.basicAuthUser && pass == s.cfg.basicAuthPass
 }
 
+func (s *server) ruleList() ([]byte, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+	return yaml.Marshal(s.cfg.rules)
+}
+
 func main() {
 
 	var app server
 	app.cfg.basicAuthUser = "admin"
 	app.cfg.basicAuthPass = "admin"
+	app.cfg.rules = []rule{{"rule0"}, {"rule1"}}
 
 	log.Printf("version %s runtime %s", version, runtime.Version())
 
@@ -61,6 +75,7 @@ func main() {
 	}
 
 	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { serveApi(w, r, &app) })
+	http.HandleFunc("/api/rule/list", func(w http.ResponseWriter, r *http.Request) { serveApiRuleList(w, r, &app) })
 
 	registerStatic(&app, "/console/", consoleDir)
 
@@ -101,6 +116,24 @@ func auth(w http.ResponseWriter, r *http.Request, app *server) bool {
 	}
 
 	return true
+}
+
+func serveApiRuleList(w http.ResponseWriter, r *http.Request, app *server) {
+	log.Printf("serveApiRuleList: url=%s from=%s", r.URL.Path, r.RemoteAddr)
+
+	if authOk := auth(w, r, app); !authOk {
+		return
+	}
+
+	out, errList := app.ruleList()
+	if errList != nil {
+		log.Printf("serveApiRuleList: ruleList: %v", errList)
+	}
+
+	_, errWrite := w.Write(out)
+	if errWrite != nil {
+		log.Printf("serveApiRuleList: write: %v", errWrite)
+	}
 }
 
 func serveApi(w http.ResponseWriter, r *http.Request, app *server) {

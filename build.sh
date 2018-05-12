@@ -1,6 +1,7 @@
 #!/bin/bash
 
 go get github.com/gopherjs/gopherjs
+go get gopkg.in/yaml.v2
 
 gofmt -s -w ./*/*.go
 go tool fix ./*/*.go
