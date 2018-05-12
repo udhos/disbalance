@@ -47,7 +47,6 @@ func ruleUpdate(old, update rule) rule {
 		r.Listeners[l] = struct{}{}
 	}
 	for a, t := range update.Targets {
-		log.Printf("target[%s]=%v", a, t)
 		r.Targets[a] = t
 	}
 	return r
