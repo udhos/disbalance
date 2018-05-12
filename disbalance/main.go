@@ -2,46 +2,15 @@ package main
 
 import (
 	"flag"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
-	"sync"
-
-	"gopkg.in/yaml.v2"
 )
 
 const (
 	version = "0.0"
 )
-
-type rule struct {
-	Name string
-}
-
-type config struct {
-	basicAuthUser string
-	basicAuthPass string
-	rules         []rule
-}
-
-type server struct {
-	cfg  config
-	lock sync.RWMutex
-}
-
-func (s *server) auth(user, pass string) bool {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	return user == s.cfg.basicAuthUser && pass == s.cfg.basicAuthPass
-}
-
-func (s *server) ruleList() ([]byte, error) {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	return yaml.Marshal(s.cfg.rules)
-}
 
 func main() {
 
@@ -74,8 +43,8 @@ func main() {
 		tls = false
 	}
 
-	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) { serveApi(w, r, &app) })
-	http.HandleFunc("/api/rule/list", func(w http.ResponseWriter, r *http.Request) { serveApiRuleList(w, r, &app) })
+	registerApi(&app, "/api/", serveApi)
+	registerApi(&app, "/api/rule", serveApiRule)
 
 	registerStatic(&app, "/console/", consoleDir)
 
@@ -98,80 +67,4 @@ func main() {
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
-}
-
-func auth(w http.ResponseWriter, r *http.Request, app *server) bool {
-
-	w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
-
-	username, password, authOK := r.BasicAuth()
-	if !authOK {
-		http.Error(w, "Not authorized", 401)
-		return false
-	}
-
-	if !app.auth(username, password) {
-		http.Error(w, "Not authorized", 401)
-		return false
-	}
-
-	return true
-}
-
-func serveApiRuleList(w http.ResponseWriter, r *http.Request, app *server) {
-	log.Printf("serveApiRuleList: url=%s from=%s", r.URL.Path, r.RemoteAddr)
-
-	if authOk := auth(w, r, app); !authOk {
-		return
-	}
-
-	out, errList := app.ruleList()
-	if errList != nil {
-		log.Printf("serveApiRuleList: ruleList: %v", errList)
-	}
-
-	_, errWrite := w.Write(out)
-	if errWrite != nil {
-		log.Printf("serveApiRuleList: write: %v", errWrite)
-	}
-}
-
-func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
-	log.Printf("serveApi: url=%s from=%s", r.URL.Path, r.RemoteAddr)
-
-	if authOk := auth(w, r, app); !authOk {
-		return
-	}
-
-	io.WriteString(w,
-		`<!DOCTYPE html>
-<html lang="en-US">
-
-<title>
-<head>disbalance api</head>
-</title>
-
-<body>
-<p>welcome to the api</p>
-<a href="/console">console</a>
-</body>
-
-</html>
-`)
-
-}
-
-type httpHandler struct {
-	app *server
-	h   http.Handler
-}
-
-func (h httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("staticHandler.ServeHTTP url=%s from=%s", r.URL.Path, r.RemoteAddr)
-	h.h.ServeHTTP(w, r)
-}
-
-func registerStatic(app *server, path, dir string) {
-	log.Printf("mapping www path %s to directory %s", path, dir)
-	http.Handle(path, httpHandler{app, http.StripPrefix(path, http.FileServer(http.Dir(dir)))})
 }
