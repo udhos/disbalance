@@ -36,10 +36,24 @@ func loadRules() {
 	removeChildren(div.BasicNode)
 
 	for _, r := range rules {
-		child := d.CreateElement("div").(*dom.HTMLDivElement)
-		s := fmt.Sprintf("%v", r)
-		child.SetTextContent(s)
-		div.AppendChild(child)
+		line := d.CreateElement("div").(*dom.HTMLDivElement)
+		but := d.CreateElement("button").(*dom.HTMLButtonElement)
+		img := d.CreateElement("img").(*dom.HTMLImageElement)
+		span1 := d.CreateElement("span").(*dom.HTMLSpanElement)
+		span2 := d.CreateElement("span").(*dom.HTMLSpanElement)
+
+		but.SetClass("unstyled-button")
+		img.Src = "/console/trash.png"
+		img.Height = 16
+		img.Width = 16
+		span2.SetTextContent(fmt.Sprintf("%v", r))
+
+		span1.AppendChild(img)
+		but.AppendChild(span1)
+		line.AppendChild(but)
+		line.AppendChild(span2)
+
+		div.AppendChild(line)
 	}
 }
 
