@@ -11,27 +11,40 @@ import (
 )
 
 func main() {
-	println("hello from console")
+	println("main: hello from console")
+
+	loadRules()
+}
+
+func loadRules() {
+	d := dom.GetWindow().Document()
+	div := d.GetElementByID("rules").(*dom.HTMLDivElement)
+	div.SetTextContent("loading rules")
 
 	buf, errFetch := httpFetch("/api/rule/")
 	if errFetch != nil {
-		println("fail: " + errFetch.Error())
+		div.SetTextContent("fetch fail: " + errFetch.Error())
 		return
 	}
 
 	var rules []rule.Rule
-
 	if errYaml := yaml.Unmarshal(buf, &rules); errYaml != nil {
-		println("fail: " + errYaml.Error())
+		div.SetTextContent("yaml fail: " + errYaml.Error())
 		return
 	}
 
-	d := dom.GetWindow().Document()
-	div := d.GetElementByID("rules").(*dom.HTMLDivElement)
+	removeChildren(div.BasicNode)
+
 	for _, r := range rules {
-		s := fmt.Sprintf("%v", r)
 		child := d.CreateElement("div").(*dom.HTMLDivElement)
+		s := fmt.Sprintf("%v", r)
 		child.SetTextContent(s)
 		div.AppendChild(child)
+	}
+}
+
+func removeChildren(n *dom.BasicNode) {
+	for _, c := range n.ChildNodes() {
+		n.RemoveChild(c)
 	}
 }
