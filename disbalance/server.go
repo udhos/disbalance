@@ -73,7 +73,7 @@ func unsafeSave(cfg *config, configPath string) {
 		log.Printf("configSave: marshal: %s: %v", configPath, errYaml)
 		return
 	}
-	if err := ioutil.WriteFile(configPath, buf, 0777); err != nil {
+	if err := ioutil.WriteFile(configPath, buf, 0640); err != nil {
 		log.Printf("configSave: %s: %v", configPath, err)
 	}
 	log.Printf("configSave: %s", configPath)
