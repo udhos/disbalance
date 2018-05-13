@@ -144,7 +144,7 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 <title>disbalance api</title>
 </head>
 <body>
-<p>welcome to disbalance api</p>
+<p>welcome to disbalance api - <a href="https://github.com/udhos/disbalance">github</a></p>
 <a href="/console">console</a>
 
 <p>APIs:</p>
