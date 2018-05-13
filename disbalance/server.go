@@ -21,23 +21,20 @@ type target struct {
 }
 
 type rule struct {
-	Name      string
-	Protocol  string
-	Listeners map[string]struct{}
-	Targets   map[string]target
+	Name     string
+	Protocol string
+	Listener string
+	Targets  map[string]target
 }
 
 func ruleUpdate(old, update rule) rule {
 	r := rule{
-		Name:      old.Name,
-		Protocol:  old.Protocol,
-		Listeners: map[string]struct{}{},
-		Targets:   map[string]target{},
+		Name:     old.Name,
+		Protocol: old.Protocol,
+		Listener: old.Listener,
+		Targets:  map[string]target{},
 	}
 	// copy from old
-	for l := range old.Listeners {
-		r.Listeners[l] = struct{}{}
-	}
 	for a, t := range old.Targets {
 		r.Targets[a] = t
 	}
@@ -45,8 +42,8 @@ func ruleUpdate(old, update rule) rule {
 	if update.Protocol != "" {
 		r.Protocol = update.Protocol
 	}
-	for l := range update.Listeners {
-		r.Listeners[l] = struct{}{}
+	if update.Listener != "" {
+		r.Protocol = update.Listener
 	}
 	for a, t := range update.Targets {
 		r.Targets[a] = t

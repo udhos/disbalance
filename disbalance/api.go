@@ -161,7 +161,8 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 <table border>
 <thead>
 <th>Rule</th>
-<th>Listeners</th>
+<th>Protocol</th>
+<th>Listener</th>
 <th>Targets</th>
 </thead>
 <tbody>
@@ -173,14 +174,18 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 `, r.Name, r.Name))
 
 		writeStr("serveApi", w, "<td>")
-		for l := range r.Listeners {
-			writeStr("serveApi", w, l)
-		}
+		writeStr("serveApi", w, r.Protocol)
 		writeStr("serveApi", w, "</td>\n")
 
 		writeStr("serveApi", w, "<td>")
-		for a := range r.Targets {
-			writeStr("serveApi", w, a)
+		writeStr("serveApi", w, r.Listener)
+		writeStr("serveApi", w, "</td>\n")
+
+		writeStr("serveApi", w, "<td>")
+		for a, t := range r.Targets {
+			writeStr("serveApi", w, "<div>")
+			writeStr("serveApi", w, fmt.Sprintf("%s interval=%d timeout=%d address=%s", a, t.Check.Interval, t.Check.Timeout, t.Check.Address))
+			writeStr("serveApi", w, "</div>")
 		}
 		writeStr("serveApi", w, "</td>\n")
 
