@@ -43,24 +43,42 @@ func loadRules() {
 	addTextSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
 	addTextDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
 	addTextDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+	addProto := d.CreateElement("select").(*dom.HTMLSelectElement)
+	addProtoSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
+	addProtoDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
+	addProtoDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+	addProtoOpt1 := d.CreateElement("option").(*dom.HTMLOptionElement)
+	addProtoOpt2 := d.CreateElement("option").(*dom.HTMLOptionElement)
 
 	addBut.SetClass("unstyled-button")
 	addSpan.SetClass("inline")
 	addTextSpan.SetClass("inline")
+	addProtoSpan.SetClass("inline")
 	addImg.Src = "/console/plus.png"
 	addImg.Height = 16
 	addImg.Width = 16
 	addText.Rows = 1
 	addText.MaxLength = 20
 	addTextDiv1.SetTextContent("rule name")
+	addProtoDiv1.SetTextContent("protocol")
+	addProtoOpt1.Value = "tcp"
+	addProtoOpt1.Text = "tcp"
+	addProtoOpt2.Value = "udp"
+	addProtoOpt2.Text = "udp"
 
 	addSpan.AppendChild(addBut)
 	addTextDiv2.AppendChild(addText)
 	addTextSpan.AppendChild(addTextDiv1)
 	addTextSpan.AppendChild(addTextDiv2)
+	addProto.AppendChild(addProtoOpt1)
+	addProto.AppendChild(addProtoOpt2)
+	addProtoDiv2.AppendChild(addProto)
+	addProtoSpan.AppendChild(addProtoDiv1)
+	addProtoSpan.AppendChild(addProtoDiv2)
 	addBut.AppendChild(addImg)
 	addDiv.AppendChild(addSpan)
 	addDiv.AppendChild(addTextSpan)
+	addDiv.AppendChild(addProtoSpan)
 	div.AppendChild(addDiv)
 
 	for _, r := range rules {
