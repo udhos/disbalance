@@ -1,5 +1,9 @@
 .unstyled-button {
-  border: none;
-  padding: 0;
-  background: none;
+	border: none;
+	padding: 0;
+	background: none;
+}
+
+.inline {
+	display: inline-block;
 }

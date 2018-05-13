@@ -35,6 +35,34 @@ func loadRules() {
 
 	removeChildren(div.BasicNode)
 
+	addDiv := d.CreateElement("div").(*dom.HTMLDivElement)
+	addSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
+	addBut := d.CreateElement("button").(*dom.HTMLButtonElement)
+	addImg := d.CreateElement("img").(*dom.HTMLImageElement)
+	addText := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+	addTextSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
+	addTextDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
+	addTextDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+	addBut.SetClass("unstyled-button")
+	addSpan.SetClass("inline")
+	addTextSpan.SetClass("inline")
+	addImg.Src = "/console/plus.png"
+	addImg.Height = 16
+	addImg.Width = 16
+	addText.Rows = 1
+	addText.MaxLength = 20
+	addTextDiv1.SetTextContent("rule name")
+
+	addSpan.AppendChild(addBut)
+	addTextDiv2.AppendChild(addText)
+	addTextSpan.AppendChild(addTextDiv1)
+	addTextSpan.AppendChild(addTextDiv2)
+	addBut.AppendChild(addImg)
+	addDiv.AppendChild(addSpan)
+	addDiv.AppendChild(addTextSpan)
+	div.AppendChild(addDiv)
+
 	for _, r := range rules {
 		line := d.CreateElement("div").(*dom.HTMLDivElement)
 		but := d.CreateElement("button").(*dom.HTMLButtonElement)
