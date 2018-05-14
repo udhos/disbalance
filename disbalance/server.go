@@ -11,8 +11,9 @@ import (
 )
 
 type healthCheck struct {
-	Interval int
-	Timeout  int
+	Interval int    // seconds between checks
+	Timeout  int    // seconds for every check
+	Minimum  int    // min consecutive events for up/down transition
 	Address  string // if empty defaults to target address
 }
 

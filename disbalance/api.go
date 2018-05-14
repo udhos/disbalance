@@ -184,7 +184,7 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 		writeStr("serveApi", w, "<td>")
 		for a, t := range r.Targets {
 			writeStr("serveApi", w, "<div>")
-			writeStr("serveApi", w, fmt.Sprintf("%s interval=%d timeout=%d address=%s", a, t.Check.Interval, t.Check.Timeout, t.Check.Address))
+			writeStr("serveApi", w, fmt.Sprintf("%s interval=%d timeout=%d minimum=%d address=%s", a, t.Check.Interval, t.Check.Timeout, t.Check.Minimum, t.Check.Address))
 			writeStr("serveApi", w, "</div>")
 		}
 		writeStr("serveApi", w, "</td>\n")
