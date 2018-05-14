@@ -55,6 +55,8 @@ func serveApiRule(w http.ResponseWriter, r *http.Request, app *server) {
 		ruleDelete(w, r, app)
 	case http.MethodPost:
 		rulePost(w, r, app)
+	case http.MethodPut:
+		rulePut(w, r, app)
 	default:
 		http.Error(w, "Method not supported", 405)
 	}
@@ -72,6 +74,45 @@ func ruleDelete(w http.ResponseWriter, r *http.Request, app *server) {
 	app.ruleDel(name)
 
 	http.Error(w, "Ok", 200)
+}
+
+func rulePut(w http.ResponseWriter, r *http.Request, app *server) {
+
+	name := strings.TrimPrefix(r.URL.Path, "/api/rule/")
+	if name == "" {
+		log.Printf("rulePut: missing name")
+		http.Error(w, "Missing rule name", 400)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("rulePost: body: %v", err)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+
+	var ruleSingle rule.Rule
+
+	if errYaml := yaml.Unmarshal(body, &ruleSingle); errYaml != nil {
+		log.Printf("rulePut: unmarshal: %v", errYaml)
+		http.Error(w, "Bad request", 400)
+		return
+	}
+
+	if ruleSingle.Name == "" {
+		ruleSingle.Name = name // get name from url
+	}
+
+	if ruleSingle.Name != name {
+		log.Printf("rulePut: rule name mismatch: url=%s body=%s", name, ruleSingle.Name)
+		http.Error(w, "Bad request - rule name mismatch", 400)
+		return
+	}
+
+	app.rulePut(ruleSingle)
+
+	http.Error(w, fmt.Sprintf("Rule updated: %s", name), 200)
 }
 
 func ruleGet(w http.ResponseWriter, r *http.Request, app *server) {

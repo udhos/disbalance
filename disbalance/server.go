@@ -129,6 +129,17 @@ func (s *server) ruleDel(name string) {
 	defer s.lock.Unlock()
 
 	delete(s.cfg.Rules, name)
+
+	unsafeSave(&s.cfg, s.configPath)
+}
+
+func (s *server) rulePut(r rule.Rule) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.cfg.Rules[r.Name] = r // fully replace old rule, if any
+
+	unsafeSave(&s.cfg, s.configPath)
 }
 
 func (s *server) rulePost(rules []rule.Rule) {
