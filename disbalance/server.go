@@ -116,11 +116,11 @@ func (s *server) ruleDump() ([]byte, error) {
 func (s *server) ruleGet(name string) (rule.Rule, error) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
-	for _, r := range s.cfg.Rules {
-		if r.Name == name {
-			return r, nil
-		}
+
+	if r, found := s.cfg.Rules[name]; found {
+		return r, nil
 	}
+
 	return rule.Rule{}, fmt.Errorf("rule not found")
 }
 
