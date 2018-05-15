@@ -150,6 +150,7 @@ func loadRules() {
 
 		newRule := rule.Rule{
 			Protocol: addProto.Value,
+			Listener: addListen.Value,
 		}
 		// addText addProto addListen
 
