@@ -33,11 +33,11 @@ Delete rule 'rule1':
 
 Create/update inline rule 'rule1':
 
-    curl -u admin:admin -X POST -d '[{name: rule1, protocol: tcp, listener: ":8000", targets: {":8000": {check: {interval: 10, timeout: 5, minimum: 3, address: 1.1.1.1}}}}]' localhost:8080/api/rule/
+    curl -u admin:admin -X POST -d '{rule1: {protocol: tcp}}' localhost:8080/api/rule/
 
-Replace inline rule 'rule10':
+Replace inline rule 'rule1':
 
-    curl -u admin:admin -X PUT -d '{protocol: tcp, listener: ":8000", targets: {":8000": {check: {interval: 10, timeout: 5, minimum: 3, address: 1.1.1.1}}}}' localhost:8080/api/rule/rule10
+    curl -u admin:admin -X PUT -d '{listener: ":2000"}' localhost:8080/api/rule/rule1
 
 Save rule list to file 'rules':
 
