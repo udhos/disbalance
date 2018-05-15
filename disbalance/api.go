@@ -100,17 +100,7 @@ func rulePut(w http.ResponseWriter, r *http.Request, app *server) {
 		return
 	}
 
-	if ruleSingle.Name == "" {
-		ruleSingle.Name = name // get name from url
-	}
-
-	if ruleSingle.Name != name {
-		log.Printf("rulePut: rule name mismatch: url=%s body=%s", name, ruleSingle.Name)
-		http.Error(w, "Bad request - rule name mismatch", 400)
-		return
-	}
-
-	app.rulePut(ruleSingle)
+	app.rulePut(name, ruleSingle)
 
 	http.Error(w, fmt.Sprintf("Rule updated: %s", name), 200)
 }
@@ -158,7 +148,7 @@ func rulePost(w http.ResponseWriter, r *http.Request, app *server) {
 		return
 	}
 
-	var rules []rule.Rule
+	rules := map[string]rule.Rule{}
 
 	if errYaml := yaml.Unmarshal(body, &rules); errYaml != nil {
 		log.Printf("rulePost: unmarshal: %v", errYaml)
@@ -179,7 +169,7 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 	}
 
 	apis := app.apiList()
-	rules := app.ruleList()
+	rules := app.ruleTable()
 
 	writeStr("serveApi", w, `<!DOCTYPE html>
 <html lang="en-US">
@@ -210,11 +200,13 @@ func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
 </thead>
 <tbody>
 `)
-	for _, r := range rules {
+	for name := range rules {
+		r := rules[name]
+
 		writeStr("serveApi", w, fmt.Sprintf(`
 <tr>
 <td><a href="/api/rule/%s">/api/rule/%s</a></td>
-`, r.Name, r.Name))
+`, name, name))
 
 		writeStr("serveApi", w, "<td>")
 		writeStr("serveApi", w, r.Protocol)

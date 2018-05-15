@@ -12,7 +12,6 @@ type Target struct {
 }
 
 type Rule struct {
-	Name     string
 	Protocol string
 	Listener string
 	Targets  map[string]Target

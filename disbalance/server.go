@@ -12,9 +12,8 @@ import (
 	"github.com/udhos/disbalance/rule"
 )
 
-func ruleUpdate(old, update rule.Rule) rule.Rule {
+func ruleUpdate(name string, old, update rule.Rule) rule.Rule {
 	r := rule.Rule{
-		Name:     old.Name,
 		Protocol: old.Protocol,
 		Listener: old.Listener,
 		Targets:  map[string]rule.Target{},
@@ -97,20 +96,21 @@ func (s *server) apiList() []string {
 	return s.apis
 }
 
-func (s *server) ruleList() []rule.Rule {
+func (s *server) ruleTable() map[string]rule.Rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	var rules []rule.Rule
-	for _, r := range s.cfg.Rules {
-		rules = append(rules, r)
+	// copy rule table
+	tab := map[string]rule.Rule{}
+	for name, r := range s.cfg.Rules {
+		tab[name] = r
 	}
 
-	return rules
+	return tab
 }
 
 func (s *server) ruleDump() ([]byte, error) {
-	return yaml.Marshal(s.ruleList())
+	return yaml.Marshal(s.ruleTable())
 }
 
 func (s *server) ruleGet(name string) (rule.Rule, error) {
@@ -133,32 +133,32 @@ func (s *server) ruleDel(name string) {
 	unsafeSave(&s.cfg, s.configPath)
 }
 
-func (s *server) rulePut(r rule.Rule) {
+func (s *server) rulePut(name string, r rule.Rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	s.cfg.Rules[r.Name] = r // fully replace old rule, if any
+	s.cfg.Rules[name] = r // fully replace old rule, if any
 
 	unsafeSave(&s.cfg, s.configPath)
 }
 
-func (s *server) rulePost(rules []rule.Rule) {
+func (s *server) rulePost(rules map[string]rule.Rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	for _, newRule := range rules {
+	for name, newRule := range rules {
 
-		if oldRule, found := s.cfg.Rules[newRule.Name]; found {
+		if oldRule, found := s.cfg.Rules[name]; found {
 			// new rule found
 			// update old rule
-			update := ruleUpdate(oldRule, newRule)
-			s.cfg.Rules[newRule.Name] = update
+			update := ruleUpdate(name, oldRule, newRule)
+			s.cfg.Rules[name] = update
 			continue
 		}
 
 		// new rule not found
 		// append new rule
-		s.cfg.Rules[newRule.Name] = newRule
+		s.cfg.Rules[name] = newRule
 	}
 
 	unsafeSave(&s.cfg, s.configPath)

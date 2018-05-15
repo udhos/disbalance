@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 
 	//"github.com/gopherjs/gopherjs"
 	"gopkg.in/yaml.v2"
@@ -26,7 +27,7 @@ func loadRules() {
 		return
 	}
 
-	var rules []rule.Rule
+	rules := map[string]rule.Rule{}
 	if errYaml := yaml.Unmarshal(buf, &rules); errYaml != nil {
 		div.SetTextContent("yaml fail: " + errYaml.Error())
 		return
@@ -92,14 +93,21 @@ func loadRules() {
 	addDiv.AppendChild(addListenSpan)
 	div.AppendChild(addDiv)
 
-	for _, r := range rules {
+	// sort rules by name
+	ruleList := make([]string, 0, len(rules))
+	for n := range rules {
+		ruleList = append(ruleList, n)
+	}
+	sort.Strings(ruleList)
+
+	for _, ruleName := range ruleList {
+		r := rules[ruleName]
+
 		line := d.CreateElement("div").(*dom.HTMLDivElement)
 		but := d.CreateElement("button").(*dom.HTMLButtonElement)
 		img := d.CreateElement("img").(*dom.HTMLImageElement)
 		span1 := d.CreateElement("span").(*dom.HTMLSpanElement)
 		span2 := d.CreateElement("span").(*dom.HTMLSpanElement)
-
-		ruleName := r.Name
 
 		ruleDelete := func(e dom.Event) {
 			log.Printf("ruleDelete: rule=%s %v", ruleName, e)
@@ -122,7 +130,7 @@ func loadRules() {
 		img.Src = "/console/trash.png"
 		img.Height = 16
 		img.Width = 16
-		span2.SetTextContent(fmt.Sprintf("%v", r))
+		span2.SetTextContent(fmt.Sprintf("%s: %v", ruleName, r))
 
 		span1.AppendChild(img)
 		but.AppendChild(span1)
@@ -140,10 +148,14 @@ func loadRules() {
 			return
 		}
 
-		newRule := rule.Rule{Name: name}
+		var newRule rule.Rule
 		// addText addProto addListen
 
-		body, errMarshal := yaml.Marshal([]rule.Rule{newRule})
+		ruleTab := map[string]rule.Rule{
+			name: newRule,
+		}
+
+		body, errMarshal := yaml.Marshal(ruleTab)
 		if errMarshal != nil {
 			log.Printf("add marshal error: %v", errMarshal)
 			return
@@ -151,7 +163,6 @@ func loadRules() {
 
 		// goroutine needed to prevent block
 		go func() {
-
 			_, errAdd := httpPost("/api/rule/", "application/x-yaml", body)
 			if errAdd != nil {
 				log.Printf("add error: %v", errAdd)
