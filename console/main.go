@@ -148,7 +148,9 @@ func loadRules() {
 			return
 		}
 
-		var newRule rule.Rule
+		newRule := rule.Rule{
+			Protocol: addProto.Value,
+		}
 		// addText addProto addListen
 
 		ruleTab := map[string]rule.Rule{
