@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v2"
+
+	"github.com/udhos/disbalance/rule"
 )
 
 func writeBuf(caller string, w http.ResponseWriter, buf []byte) {
@@ -115,7 +117,7 @@ func rulePost(w http.ResponseWriter, r *http.Request, app *server) {
 		return
 	}
 
-	var rules []rule
+	var rules []rule.Rule
 
 	if errYaml := yaml.Unmarshal(body, &rules); errYaml != nil {
 		log.Printf("rulePost: unmarshal: %v", errYaml)

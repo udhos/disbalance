@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+
+	"github.com/udhos/disbalance/rule"
 )
 
 const (
@@ -16,7 +18,7 @@ func main() {
 
 	var app server
 	app.cfg = config{
-		Rules: map[string]rule{},
+		Rules: map[string]rule.Rule{},
 	}
 
 	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))

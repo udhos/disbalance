@@ -8,32 +8,16 @@ import (
 	"sync"
 
 	"gopkg.in/yaml.v2"
+
+	"github.com/udhos/disbalance/rule"
 )
 
-type healthCheck struct {
-	Interval int    // seconds between checks
-	Timeout  int    // seconds for every check
-	Minimum  int    // min consecutive events for up/down transition
-	Address  string // if empty defaults to target address
-}
-
-type target struct {
-	Check healthCheck
-}
-
-type rule struct {
-	Name     string
-	Protocol string
-	Listener string
-	Targets  map[string]target
-}
-
-func ruleUpdate(old, update rule) rule {
-	r := rule{
+func ruleUpdate(old, update rule.Rule) rule.Rule {
+	r := rule.Rule{
 		Name:     old.Name,
 		Protocol: old.Protocol,
 		Listener: old.Listener,
-		Targets:  map[string]target{},
+		Targets:  map[string]rule.Target{},
 	}
 	// copy from old
 	for a, t := range old.Targets {
@@ -55,7 +39,7 @@ func ruleUpdate(old, update rule) rule {
 type config struct {
 	BasicAuthUser string
 	BasicAuthPass string
-	Rules         map[string]rule
+	Rules         map[string]rule.Rule
 }
 
 type server struct {
@@ -113,11 +97,11 @@ func (s *server) apiList() []string {
 	return s.apis
 }
 
-func (s *server) ruleList() []rule {
+func (s *server) ruleList() []rule.Rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	var rules []rule
+	var rules []rule.Rule
 	for _, r := range s.cfg.Rules {
 		rules = append(rules, r)
 	}
@@ -129,7 +113,7 @@ func (s *server) ruleDump() ([]byte, error) {
 	return yaml.Marshal(s.ruleList())
 }
 
-func (s *server) ruleGet(name string) (rule, error) {
+func (s *server) ruleGet(name string) (rule.Rule, error) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 	for _, r := range s.cfg.Rules {
@@ -137,7 +121,7 @@ func (s *server) ruleGet(name string) (rule, error) {
 			return r, nil
 		}
 	}
-	return rule{}, fmt.Errorf("rule not found")
+	return rule.Rule{}, fmt.Errorf("rule not found")
 }
 
 func (s *server) ruleDel(name string) {
@@ -147,7 +131,7 @@ func (s *server) ruleDel(name string) {
 	delete(s.cfg.Rules, name)
 }
 
-func (s *server) rulePost(rules []rule) {
+func (s *server) rulePost(rules []rule.Rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
