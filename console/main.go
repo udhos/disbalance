@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	//"github.com/gopherjs/gopherjs"
 	"gopkg.in/yaml.v2"
@@ -11,8 +12,6 @@ import (
 )
 
 func main() {
-	println("main: hello from console")
-
 	loadRules()
 }
 
@@ -100,7 +99,14 @@ func loadRules() {
 		span1 := d.CreateElement("span").(*dom.HTMLSpanElement)
 		span2 := d.CreateElement("span").(*dom.HTMLSpanElement)
 
+		ruleName := r.Name
+
+		ruleDelete := func(e dom.Event) {
+			log.Printf("ruleDelete: rule=%s %v", ruleName, e)
+		}
+
 		but.SetClass("unstyled-button")
+		but.AddEventListener("click", false, ruleDelete)
 		img.Src = "/console/trash.png"
 		img.Height = 16
 		img.Width = 16
