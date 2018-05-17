@@ -103,6 +103,18 @@ func loadRules() {
 
 		ruleDelete := func(e dom.Event) {
 			log.Printf("ruleDelete: rule=%s %v", ruleName, e)
+
+			// goroutine needed to prevent block
+			go func() {
+				_, errDel := httpDelete("/api/rule/" + ruleName)
+				if errDel != nil {
+					log.Printf("delete error: %v", errDel)
+					return
+				}
+				log.Printf("deleted: %s", ruleName)
+
+				loadRules()
+			}()
 		}
 
 		but.SetClass("unstyled-button")

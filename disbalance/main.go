@@ -56,6 +56,12 @@ func main() {
 		tls = false
 	}
 
+	// root handler
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("root handler - not found: %s", r.URL.Path)
+		http.Error(w, "Not found", 404)
+	})
+
 	registerApi(&app, "/api/", serveApi)
 	registerApi(&app, "/api/rule/", serveApiRule)
 
