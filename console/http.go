@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -21,6 +22,26 @@ func httpFetch(url string) ([]byte, error) {
 	info, errRead := ioutil.ReadAll(resp.Body)
 	if errRead != nil {
 		return nil, fmt.Errorf("httpFetch: read all: url=%v: %v", url, errRead)
+	}
+
+	return info, nil
+}
+
+func httpPost(url, contentType string, buf []byte) ([]byte, error) {
+	resp, err := http.Post(url, contentType, bytes.NewReader(buf))
+	if err != nil {
+		return nil, fmt.Errorf("httpPost: url=%v: %v", url, err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("httpPost: bad status: %d", resp.StatusCode)
+	}
+
+	info, errRead := ioutil.ReadAll(resp.Body)
+	if errRead != nil {
+		return nil, fmt.Errorf("httpPost: read: url=%v: %v", url, errRead)
 	}
 
 	return info, nil

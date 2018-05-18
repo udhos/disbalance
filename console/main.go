@@ -131,6 +131,39 @@ func loadRules() {
 
 		div.AppendChild(line)
 	}
+
+	ruleAdd := func(e dom.Event) {
+
+		name := addText.Value
+		if name == "" {
+			log.Printf("add: empty name")
+			return
+		}
+
+		newRule := rule.Rule{Name: name}
+		// addText addProto addListen
+
+		body, errMarshal := yaml.Marshal([]rule.Rule{newRule})
+		if errMarshal != nil {
+			log.Printf("add marshal error: %v", errMarshal)
+			return
+		}
+
+		// goroutine needed to prevent block
+		go func() {
+
+			_, errAdd := httpPost("/api/rule/", "application/x-yaml", body)
+			if errAdd != nil {
+				log.Printf("add error: %v", errAdd)
+				return
+			}
+			log.Printf("added: %s", name)
+
+			loadRules()
+		}()
+	}
+
+	addBut.AddEventListener("click", false, ruleAdd)
 }
 
 func removeChildren(n *dom.BasicNode) {
