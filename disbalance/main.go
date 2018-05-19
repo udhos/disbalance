@@ -42,6 +42,13 @@ func main() {
 	flag.Parse()
 
 	app.configLoad()
+
+	if app.cfg.BasicAuthUser == "" && app.cfg.BasicAuthPass == "" {
+		log.Printf("setting empty basic auth credentials to admin:admin")
+		app.cfg.BasicAuthUser = "admin"
+		app.cfg.BasicAuthPass = "admin"
+	}
+
 	app.configSave()
 
 	tls := true
