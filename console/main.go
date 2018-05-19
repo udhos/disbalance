@@ -55,10 +55,11 @@ func loadRules() {
 	addListenDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
 
 	addBut.SetClass("unstyled-button")
-	addSpan.SetClass("cell")
-	addTextSpan.SetClass("cell")
-	addProtoSpan.SetClass("cell")
-	addListenSpan.SetClass("cell")
+	addSpan.SetClass("line")
+	addTextSpan.SetClass("line")
+	addProtoSpan.SetClass("line")
+	addListenSpan.SetClass("line")
+
 	addImg.Src = "/console/plus.png"
 	addImg.Height = 16
 	addImg.Width = 16
@@ -100,10 +101,16 @@ func loadRules() {
 	}
 	sort.Strings(ruleList)
 
+	tab := d.CreateElement("div").(*dom.HTMLDivElement)
+	tab.SetClass("table")
+	div.AppendChild(tab)
+
 	for _, ruleName := range ruleList {
 		r := rules[ruleName]
 
 		line := d.CreateElement("div").(*dom.HTMLDivElement)
+		line.SetClass("table-line")
+
 		but := d.CreateElement("button").(*dom.HTMLButtonElement)
 		img := d.CreateElement("img").(*dom.HTMLImageElement)
 
@@ -113,11 +120,11 @@ func loadRules() {
 		col4 := d.CreateElement("div").(*dom.HTMLDivElement)
 		col5 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-		col1.SetClass("cell")
-		col2.SetClass("cell fixed-width")
-		col3.SetClass("cell fixed-width")
-		col4.SetClass("cell fixed-width")
-		col5.SetClass("cell fixed-width")
+		col1.SetClass("rule-delete-button")
+		col2.SetClass("cell")
+		col3.SetClass("cell")
+		col4.SetClass("cell")
+		col5.SetClass("cell")
 
 		s2 := d.CreateElement("span").(*dom.HTMLSpanElement)
 		s3 := d.CreateElement("span").(*dom.HTMLSpanElement)
@@ -170,7 +177,7 @@ func loadRules() {
 		line.AppendChild(col4)
 		line.AppendChild(col5)
 
-		div.AppendChild(line)
+		tab.AppendChild(line)
 	}
 
 	ruleAdd := func(e dom.Event) {

@@ -9,16 +9,34 @@
 	background: none;
 }
 
-.cell {
+.line {
 	display: inline-block;
 }
 
-.fixed-width {
+.rule-delete-button {
+	display: inline-block;
+	width: 2%;
+}
+
+.cell {
+	display: inline-block;
 	border-width: thin;
 	border-style: solid;
 	border-color: blue;
+	border-collapse: separate;
+	border-spacing: 2px;
 	background-color: lightgrey;
 	border-radius: 5px;
-	margin:0 auto;
+	margin: 2px;
 	text-align: center;
+	width: 20%;
+}
+
+.table {
+	display: table;
+	width: 100%;
+}
+
+.table-line {
+	width: 100%;
 }
