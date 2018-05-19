@@ -1,9 +1,24 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
 .unstyled-button {
 	border: none;
 	padding: 0;
 	background: none;
 }
 
-.inline {
+.cell {
 	display: inline-block;
+}
+
+.fixed-width {
+	border-width: thin;
+	border-style: solid;
+	border-color: blue;
+	background-color: lightgrey;
+	border-radius: 5px;
+	margin:0 auto;
+	text-align: center;
 }

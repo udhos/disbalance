@@ -55,10 +55,10 @@ func loadRules() {
 	addListenDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
 
 	addBut.SetClass("unstyled-button")
-	addSpan.SetClass("inline")
-	addTextSpan.SetClass("inline")
-	addProtoSpan.SetClass("inline")
-	addListenSpan.SetClass("inline")
+	addSpan.SetClass("cell")
+	addTextSpan.SetClass("cell")
+	addProtoSpan.SetClass("cell")
+	addListenSpan.SetClass("cell")
 	addImg.Src = "/console/plus.png"
 	addImg.Height = 16
 	addImg.Width = 16
@@ -106,8 +106,23 @@ func loadRules() {
 		line := d.CreateElement("div").(*dom.HTMLDivElement)
 		but := d.CreateElement("button").(*dom.HTMLButtonElement)
 		img := d.CreateElement("img").(*dom.HTMLImageElement)
-		span1 := d.CreateElement("span").(*dom.HTMLSpanElement)
-		span2 := d.CreateElement("span").(*dom.HTMLSpanElement)
+
+		col1 := d.CreateElement("div").(*dom.HTMLDivElement)
+		col2 := d.CreateElement("div").(*dom.HTMLDivElement)
+		col3 := d.CreateElement("div").(*dom.HTMLDivElement)
+		col4 := d.CreateElement("div").(*dom.HTMLDivElement)
+		col5 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+		col1.SetClass("cell")
+		col2.SetClass("cell fixed-width")
+		col3.SetClass("cell fixed-width")
+		col4.SetClass("cell fixed-width")
+		col5.SetClass("cell fixed-width")
+
+		s2 := d.CreateElement("span").(*dom.HTMLSpanElement)
+		s3 := d.CreateElement("span").(*dom.HTMLSpanElement)
+		s4 := d.CreateElement("span").(*dom.HTMLSpanElement)
+		s5 := d.CreateElement("span").(*dom.HTMLSpanElement)
 
 		ruleDelete := func(e dom.Event) {
 			log.Printf("ruleDelete: rule=%s %v", ruleName, e)
@@ -130,12 +145,30 @@ func loadRules() {
 		img.Src = "/console/trash.png"
 		img.Height = 16
 		img.Width = 16
-		span2.SetTextContent(fmt.Sprintf("%s: %v", ruleName, r))
 
-		span1.AppendChild(img)
-		but.AppendChild(span1)
-		line.AppendChild(but)
-		line.AppendChild(span2)
+		listener := r.Listener
+		if listener == "" {
+			listener = "<nolistener>"
+		}
+
+		s2.SetTextContent(ruleName)
+		s3.SetTextContent(r.Protocol)
+		s4.SetTextContent(listener)
+		s5.SetTextContent(fmt.Sprintf("%v", r.Targets))
+
+		col2.AppendChild(s2)
+		col3.AppendChild(s3)
+		col4.AppendChild(s4)
+		col5.AppendChild(s5)
+
+		but.AppendChild(img)
+		col1.AppendChild(but)
+
+		line.AppendChild(col1)
+		line.AppendChild(col2)
+		line.AppendChild(col3)
+		line.AppendChild(col4)
+		line.AppendChild(col5)
 
 		div.AppendChild(line)
 	}
