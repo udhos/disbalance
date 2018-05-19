@@ -3,6 +3,10 @@
 #    margin: 0;
 #}
 
+textarea {
+	resize: none;
+}
+
 .unstyled-button {
 	border: none;
 	padding: 0;

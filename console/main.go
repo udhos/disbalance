@@ -153,14 +153,27 @@ func loadRules() {
 		img.Height = 16
 		img.Width = 16
 
-		listener := r.Listener
-		if listener == "" {
-			listener = "<nolistener>"
+		editProto := d.CreateElement("select").(*dom.HTMLSelectElement)
+		editProtoOpt1 := d.CreateElement("option").(*dom.HTMLOptionElement)
+		editProtoOpt1.Value = "tcp"
+		editProtoOpt1.Text = "tcp"
+		editProtoOpt2 := d.CreateElement("option").(*dom.HTMLOptionElement)
+		editProtoOpt2.Value = "udp"
+		editProtoOpt2.Text = "udp"
+		editProto.AppendChild(editProtoOpt1)
+		editProto.AppendChild(editProtoOpt2)
+		if r.Protocol == "tcp" {
+			editProto.SelectedIndex = 0
+		} else {
+			editProto.SelectedIndex = 1
 		}
+		editListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		editListen.Rows = 1
+		editListen.Value = r.Listener
 
 		s2.SetTextContent(ruleName)
-		s3.SetTextContent(r.Protocol)
-		s4.SetTextContent(listener)
+		s3.AppendChild(editProto)
+		s4.AppendChild(editListen)
 		s5.SetTextContent(fmt.Sprintf("%v", r.Targets))
 
 		col2.AppendChild(s2)
