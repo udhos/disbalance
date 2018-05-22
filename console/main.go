@@ -191,6 +191,47 @@ func loadRules() {
 			}()
 		}
 
+		ruleListen := func(e dom.Event) {
+			url := "/api/rule/" + name
+			log.Printf("ruleListen: rule=%s %v url=%s", name, e, url)
+
+			// goroutine needed to prevent block
+			go func() {
+				// fetch old rule
+				buf, errFetch := httpFetch(url)
+				if errFetch != nil {
+					log.Printf("fetch fail: " + errFetch.Error())
+					return
+				}
+
+				var old rule.Rule
+				if errYaml := yaml.Unmarshal(buf, &old); errYaml != nil {
+					log.Printf("yaml fail: " + errYaml.Error())
+					return
+				}
+
+				t := e.Target().(*dom.HTMLTextAreaElement)
+				listenNew := t.Value
+
+				log.Printf("ruleListen: old=%s new=%s", old.Listener, listenNew)
+				old.Listener = listenNew
+
+				bufNew, errMarshal := yaml.Marshal(old)
+				if errMarshal != nil {
+					log.Printf("ruleListen: marshal error: %v", errMarshal)
+					return
+				}
+
+				_, errPut := httpPut(url, "application/x-yaml", bufNew)
+				if errPut != nil {
+					log.Printf("put error: %v", errPut)
+					return
+				}
+
+				//loadRules()
+			}()
+		}
+
 		but.SetClass("unstyled-button")
 		but.AddEventListener("click", false, ruleDelete)
 		img.Src = "/console/trash.png"
@@ -215,6 +256,7 @@ func loadRules() {
 		editListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		editListen.Rows = 1
 		editListen.Value = r.Listener
+		editListen.AddEventListener("change", false, ruleListen)
 
 		s2.SetTextContent(ruleName)
 		s3.AppendChild(editProto)
