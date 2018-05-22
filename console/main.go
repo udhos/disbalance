@@ -261,7 +261,45 @@ func loadRules() {
 		s2.SetTextContent(ruleName)
 		s3.AppendChild(editProto)
 		s4.AppendChild(editListen)
-		s5.SetTextContent(fmt.Sprintf("%v", r.Targets))
+
+		// sort targets by name
+		targetList := make([]string, 0, len(r.Targets))
+		for tn := range r.Targets {
+			targetList = append(targetList, tn)
+		}
+		sort.Strings(targetList)
+
+		targetTab := d.CreateElement("div").(*dom.HTMLDivElement)
+		targetTab.SetClass("table")
+		s5.AppendChild(targetTab)
+
+		for _, targetName := range targetList {
+			t := r.Targets[targetName]
+			targetLine := d.CreateElement("div").(*dom.HTMLDivElement)
+			targetLine.SetClass("table-line")
+
+			col1 := d.CreateElement("div").(*dom.HTMLDivElement)
+			col2 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+			col1.SetClass("line")
+			col2.SetClass("line")
+
+			targetDelBut := d.CreateElement("button").(*dom.HTMLButtonElement)
+			targetDelBut.SetClass("unstyled-button")
+			targetDelImg := d.CreateElement("img").(*dom.HTMLImageElement)
+			targetDelImg.Src = "/console/trash.png"
+			targetDelImg.Height = 16
+			targetDelImg.Width = 16
+			targetDelBut.AppendChild(targetDelImg)
+
+			col1.AppendChild(targetDelBut)
+			col2.SetTextContent(fmt.Sprintf("%s: %v", targetName, t))
+
+			targetLine.AppendChild(col1)
+			targetLine.AppendChild(col2)
+
+			targetTab.AppendChild(targetLine)
+		}
 
 		col2.AppendChild(s2)
 		col3.AppendChild(s3)
