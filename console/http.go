@@ -47,6 +47,35 @@ func httpPost(url, contentType string, buf []byte) ([]byte, error) {
 	return info, nil
 }
 
+func httpPut(url, contentType string, buf []byte) ([]byte, error) {
+	req, errNew := http.NewRequest("PUT", url, bytes.NewReader(buf))
+	if errNew != nil {
+		return nil, errNew
+	}
+
+	req.Header.Set("Content-Type", contentType)
+
+	client := http.Client{}
+
+	resp, errDel := client.Do(req)
+	if errDel != nil {
+		return nil, errDel
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("httpPut: bad status: %d", resp.StatusCode)
+	}
+
+	info, errRead := ioutil.ReadAll(resp.Body)
+	if errRead != nil {
+		return nil, errRead
+	}
+
+	return info, nil
+}
+
 func httpDelete(url string) ([]byte, error) {
 	req, errNew := http.NewRequest("DELETE", url, nil)
 	if errNew != nil {

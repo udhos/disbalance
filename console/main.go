@@ -131,19 +131,63 @@ func loadRules() {
 		s4 := d.CreateElement("span").(*dom.HTMLSpanElement)
 		s5 := d.CreateElement("span").(*dom.HTMLSpanElement)
 
+		name := ruleName // save name for closure below
+
 		ruleDelete := func(e dom.Event) {
-			log.Printf("ruleDelete: rule=%s %v", ruleName, e)
+			log.Printf("ruleDelete: rule=%s %v", name, e)
 
 			// goroutine needed to prevent block
 			go func() {
-				_, errDel := httpDelete("/api/rule/" + ruleName)
+				_, errDel := httpDelete("/api/rule/" + name)
 				if errDel != nil {
 					log.Printf("delete error: %v", errDel)
 					return
 				}
-				log.Printf("deleted: %s", ruleName)
+				log.Printf("deleted: %s", name)
 
 				loadRules()
+			}()
+		}
+
+		ruleProto := func(e dom.Event) {
+			url := "/api/rule/" + name
+			log.Printf("ruleProto: rule=%s %v url=%s", name, e, url)
+
+			// goroutine needed to prevent block
+			go func() {
+				// fetch old rule
+				buf, errFetch := httpFetch(url)
+				if errFetch != nil {
+					log.Printf("fetch fail: " + errFetch.Error())
+					return
+				}
+
+				var old rule.Rule
+				if errYaml := yaml.Unmarshal(buf, &old); errYaml != nil {
+					log.Printf("yaml fail: " + errYaml.Error())
+					return
+				}
+
+				t := e.Target()
+				s := t.(*dom.HTMLSelectElement)
+				protoNew := s.Value
+
+				log.Printf("ruleProto: old=%s new=%s", old.Protocol, protoNew)
+				old.Protocol = protoNew
+
+				bufNew, errMarshal := yaml.Marshal(old)
+				if errMarshal != nil {
+					log.Printf("ruleProto: marshal error: %v", errMarshal)
+					return
+				}
+
+				_, errPut := httpPut(url, "application/x-yaml", bufNew)
+				if errPut != nil {
+					log.Printf("put error: %v", errPut)
+					return
+				}
+
+				//loadRules()
 			}()
 		}
 
@@ -167,6 +211,7 @@ func loadRules() {
 		} else {
 			editProto.SelectedIndex = 1
 		}
+		editProto.AddEventListener("change", false, ruleProto)
 		editListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		editListen.Rows = 1
 		editListen.Value = r.Listener
