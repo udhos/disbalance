@@ -394,6 +394,48 @@ func loadRules() {
 			targetLine.AppendChild(col1)
 			targetLine.AppendChild(col2)
 
+			target := targetName
+
+			targetDelete := func(e dom.Event) {
+				log.Printf("targetDelete: rule=%s target=%s", name, target)
+
+				url := "/api/rule/" + name
+
+				// goroutine needed to prevent block
+				go func() {
+					// fetch old rule
+					buf, errFetch := httpFetch(url)
+					if errFetch != nil {
+						log.Printf("fetch fail: " + errFetch.Error())
+						return
+					}
+
+					var old rule.Rule
+					if errYaml := yaml.Unmarshal(buf, &old); errYaml != nil {
+						log.Printf("yaml fail: " + errYaml.Error())
+						return
+					}
+
+					delete(old.Targets, target)
+
+					bufNew, errMarshal := yaml.Marshal(old)
+					if errMarshal != nil {
+						log.Printf("targetDelete: marshal error: %v", errMarshal)
+						return
+					}
+
+					_, errPut := httpPut(url, "application/x-yaml", bufNew)
+					if errPut != nil {
+						log.Printf("put error: %v", errPut)
+						return
+					}
+
+					loadRules()
+				}()
+			}
+
+			targetDelBut.AddEventListener("click", false, targetDelete)
+
 			targetTab.AppendChild(targetLine)
 		}
 
