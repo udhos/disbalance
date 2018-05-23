@@ -420,6 +420,70 @@ func loadRules() {
 			targetText6.Cols = textCols
 			targetText6.Value = t.Check.Address
 
+			target := targetName
+
+			targetEdit := func(e dom.Event, f func(update *rule.Target, value string)) {
+				url := "/api/rule/" + name
+				log.Printf("targetEdit: rule=%s target=%s url=%s", name, target, url)
+
+				// goroutine needed to prevent block
+				go func() {
+					// fetch old rule
+					buf, errFetch := httpFetch(url)
+					if errFetch != nil {
+						log.Printf("fetch fail: " + errFetch.Error())
+						return
+					}
+
+					var old rule.Rule
+					if errYaml := yaml.Unmarshal(buf, &old); errYaml != nil {
+						log.Printf("yaml fail: " + errYaml.Error())
+						return
+					}
+
+					txt := e.Target().(*dom.HTMLTextAreaElement)
+
+					trg := old.Targets[target]
+					f(&trg, txt.Value)        // change
+					old.Targets[target] = trg // replace
+
+					bufNew, errMarshal := yaml.Marshal(old)
+					if errMarshal != nil {
+						log.Printf("targetEdit: marshal error: %v", errMarshal)
+						return
+					}
+
+					_, errPut := httpPut(url, "application/x-yaml", bufNew)
+					if errPut != nil {
+						log.Printf("put error: %v", errPut)
+						return
+					}
+
+					//loadRules()
+				}()
+			}
+
+			targetEditInterval := func(e dom.Event) {
+				targetEdit(e, targetSetInterval)
+			}
+
+			targetEditTimeout := func(e dom.Event) {
+				targetEdit(e, targetSetTimeout)
+			}
+
+			targetEditMinimum := func(e dom.Event) {
+				targetEdit(e, targetSetMinimum)
+			}
+
+			targetEditAddress := func(e dom.Event) {
+				targetEdit(e, targetSetAddress)
+			}
+
+			targetText3.AddEventListener("change", false, targetEditInterval)
+			targetText4.AddEventListener("change", false, targetEditTimeout)
+			targetText5.AddEventListener("change", false, targetEditMinimum)
+			targetText6.AddEventListener("change", false, targetEditAddress)
+
 			col1.AppendChild(targetDelBut)
 			col2.SetTextContent(targetName)
 			col3.AppendChild(targetText3)
@@ -433,8 +497,6 @@ func loadRules() {
 			targetLine.AppendChild(col4)
 			targetLine.AppendChild(col5)
 			targetLine.AppendChild(col6)
-
-			target := targetName
 
 			targetDelete := func(e dom.Event) {
 				log.Printf("targetDelete: rule=%s target=%s", name, target)
@@ -601,6 +663,29 @@ func loadRules() {
 	}
 
 	addBut.AddEventListener("click", false, ruleAdd)
+}
+
+func targetSetInterval(update *rule.Target, value string) {
+	log.Printf("targetSetInterval: old=%v new=%v", update.Check.Interval, value)
+	v, _ := strconv.Atoi(value)
+	update.Check.Interval = v
+}
+
+func targetSetTimeout(update *rule.Target, value string) {
+	log.Printf("targetSetTimeout: old=%v new=%v", update.Check.Timeout, value)
+	v, _ := strconv.Atoi(value)
+	update.Check.Timeout = v
+}
+
+func targetSetMinimum(update *rule.Target, value string) {
+	log.Printf("targetSetMinimum: old=%v new=%v", update.Check.Minimum, value)
+	v, _ := strconv.Atoi(value)
+	update.Check.Minimum = v
+}
+
+func targetSetAddress(update *rule.Target, value string) {
+	log.Printf("targetSetAddress: old=%v new=%v", update.Check.Address, value)
+	update.Check.Address = value
 }
 
 func removeChildren(n *dom.BasicNode) {
