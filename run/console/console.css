@@ -66,27 +66,27 @@ textarea {
 }
 
 .target-col1 {
-	flex-grow: 1;
+	width: 1%;
 }
 
 .target-col2 {
-	flex-grow: 25;
+	width: 30%;
 }
 
 .target-col3 {
-	flex-grow: 16;
+	width: 15%;
 }
 
 .target-col4 {
-	flex-grow: 16;
+	width: 15%;
 }
 
 .target-col5 {
-	flex-grow: 16;
+	width: 15%;
 }
 
 .target-col6 {
-	flex-grow: 25;
+	width: 25%;
 }
 
 

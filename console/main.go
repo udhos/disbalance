@@ -380,12 +380,12 @@ func loadRules() {
 			col5 := d.CreateElement("div").(*dom.HTMLDivElement)
 			col6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-			col1.SetClass("line target-col1")
-			col2.SetClass("line target-col2")
-			col3.SetClass("line target-col3")
-			col4.SetClass("line target-col4")
-			col5.SetClass("line target-col5")
-			col6.SetClass("line target-col6")
+			col1.SetClass("target-col1 line")
+			col2.SetClass("target-col2 line")
+			col3.SetClass("target-col3 line")
+			col4.SetClass("target-col4 line")
+			col5.SetClass("target-col5 line")
+			col6.SetClass("target-col6 line")
 
 			targetDelBut := d.CreateElement("button").(*dom.HTMLButtonElement)
 			targetDelBut.SetClass("unstyled-button")
@@ -396,22 +396,23 @@ func loadRules() {
 			targetDelBut.AppendChild(targetDelImg)
 
 			textMaxLen := 30
-			textCols := 10
+			textCols := 15
+			numCols := 5
 
 			targetText3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText3.Rows = 1
 			targetText3.MaxLength = textMaxLen
-			targetText3.Cols = textCols
+			targetText3.Cols = numCols
 			targetText3.Value = strconv.Itoa(t.Check.Interval)
 			targetText4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText4.Rows = 1
 			targetText4.MaxLength = textMaxLen
-			targetText4.Cols = textCols
+			targetText4.Cols = numCols
 			targetText4.Value = strconv.Itoa(t.Check.Timeout)
 			targetText5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText5.Rows = 1
 			targetText5.MaxLength = textMaxLen
-			targetText5.Cols = textCols
+			targetText5.Cols = numCols
 			targetText5.Value = strconv.Itoa(t.Check.Minimum)
 			targetText6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText6.Rows = 1
