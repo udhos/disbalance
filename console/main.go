@@ -422,7 +422,7 @@ func loadRules() {
 
 			target := targetName
 
-			targetEdit := func(e dom.Event, f func(update *rule.Target, value string)) {
+			targetEdit := func(e dom.Event, f func(update *rule.Target, txt *dom.HTMLTextAreaElement)) {
 				url := "/api/rule/" + name
 				log.Printf("targetEdit: rule=%s target=%s url=%s", name, target, url)
 
@@ -444,7 +444,7 @@ func loadRules() {
 					txt := e.Target().(*dom.HTMLTextAreaElement)
 
 					trg := old.Targets[target]
-					f(&trg, txt.Value)        // change
+					f(&trg, txt)              // change
 					old.Targets[target] = trg // replace
 
 					bufNew, errMarshal := yaml.Marshal(old)
@@ -665,25 +665,32 @@ func loadRules() {
 	addBut.AddEventListener("click", false, ruleAdd)
 }
 
-func targetSetInterval(update *rule.Target, value string) {
+func targetSetInterval(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+	value := txt.Value
 	log.Printf("targetSetInterval: old=%v new=%v", update.Check.Interval, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Interval = v
+	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetTimeout(update *rule.Target, value string) {
+func targetSetTimeout(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+	value := txt.Value
 	log.Printf("targetSetTimeout: old=%v new=%v", update.Check.Timeout, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Timeout = v
+	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetMinimum(update *rule.Target, value string) {
+func targetSetMinimum(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+	value := txt.Value
 	log.Printf("targetSetMinimum: old=%v new=%v", update.Check.Minimum, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Minimum = v
+	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetAddress(update *rule.Target, value string) {
+func targetSetAddress(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+	value := txt.Value
 	log.Printf("targetSetAddress: old=%v new=%v", update.Check.Address, value)
 	update.Check.Address = value
 }
