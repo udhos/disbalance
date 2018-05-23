@@ -296,32 +296,35 @@ func loadRules() {
 		h5 := d.CreateElement("div").(*dom.HTMLDivElement)
 		h6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-		h2.SetTextContent("target")
-		h3.SetTextContent("interval")
-		h4.SetTextContent("timeout")
-		h5.SetTextContent("minimum")
-		h6.SetTextContent("address")
+		h2.SetTextContent("tg")
+		h3.SetTextContent("intv")
+		h4.SetTextContent("tmo")
+		h5.SetTextContent("min")
+		h6.SetTextContent("addr")
+
+		maxLen := 30
+		cols := 4
 
 		text2 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text2.Rows = 1
-		text2.MaxLength = 10
-		text2.Cols = 11
+		text2.MaxLength = maxLen
+		text2.Cols = cols
 		text3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text3.Rows = 1
-		text3.MaxLength = 10
-		text3.Cols = 11
+		text3.MaxLength = maxLen
+		text3.Cols = cols
 		text4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text4.Rows = 1
-		text4.MaxLength = 10
-		text4.Cols = 11
+		text4.MaxLength = maxLen
+		text4.Cols = cols
 		text5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text5.Rows = 1
-		text5.MaxLength = 10
-		text5.Cols = 11
+		text5.MaxLength = maxLen
+		text5.Cols = cols
 		text6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text6.Rows = 1
-		text6.MaxLength = 10
-		text6.Cols = 11
+		text6.MaxLength = maxLen
+		text6.Cols = cols
 
 		textDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
 		textDiv3 := d.CreateElement("div").(*dom.HTMLDivElement)
