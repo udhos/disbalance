@@ -26,11 +26,11 @@ textarea {
 }
 
 .rule-col2 {
-	width: 16%;
+	width: 10%;
 }
 
 .rule-col3 {
-	width: 8%;
+	width: 5%;
 }
 
 .rule-col4 {
@@ -64,3 +64,29 @@ textarea {
 	width: 100%;
 	display: flex;
 }
+
+.target-col1 {
+	flex-grow: 1;
+}
+
+.target-col2 {
+	flex-grow: 25;
+}
+
+.target-col3 {
+	flex-grow: 16;
+}
+
+.target-col4 {
+	flex-grow: 16;
+}
+
+.target-col5 {
+	flex-grow: 16;
+}
+
+.target-col6 {
+	flex-grow: 25;
+}
+
+

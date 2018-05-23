@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -304,7 +303,7 @@ func loadRules() {
 		h6.SetTextContent("address")
 
 		maxLen := 30
-		cols := 4
+		cols := 10
 
 		text2 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		text2.Rows = 1
@@ -374,11 +373,19 @@ func loadRules() {
 			targetLine := d.CreateElement("div").(*dom.HTMLDivElement)
 			targetLine.SetClass("table-line")
 
-			col1 := d.CreateElement("div").(*dom.HTMLDivElement)
-			col2 := d.CreateElement("div").(*dom.HTMLDivElement)
+			col1 := d.CreateElement("div").(*dom.HTMLDivElement) // button
+			col2 := d.CreateElement("div").(*dom.HTMLDivElement) // target
+			col3 := d.CreateElement("div").(*dom.HTMLDivElement)
+			col4 := d.CreateElement("div").(*dom.HTMLDivElement)
+			col5 := d.CreateElement("div").(*dom.HTMLDivElement)
+			col6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-			col1.SetClass("line")
-			col2.SetClass("line")
+			col1.SetClass("line target-col1")
+			col2.SetClass("line target-col2")
+			col3.SetClass("line target-col3")
+			col4.SetClass("line target-col4")
+			col5.SetClass("line target-col5")
+			col6.SetClass("line target-col6")
 
 			targetDelBut := d.CreateElement("button").(*dom.HTMLButtonElement)
 			targetDelBut.SetClass("unstyled-button")
@@ -388,11 +395,43 @@ func loadRules() {
 			targetDelImg.Width = 16
 			targetDelBut.AppendChild(targetDelImg)
 
+			textMaxLen := 30
+			textCols := 10
+
+			targetText3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+			targetText3.Rows = 1
+			targetText3.MaxLength = textMaxLen
+			targetText3.Cols = textCols
+			targetText3.Value = strconv.Itoa(t.Check.Interval)
+			targetText4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+			targetText4.Rows = 1
+			targetText4.MaxLength = textMaxLen
+			targetText4.Cols = textCols
+			targetText4.Value = strconv.Itoa(t.Check.Timeout)
+			targetText5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+			targetText5.Rows = 1
+			targetText5.MaxLength = textMaxLen
+			targetText5.Cols = textCols
+			targetText5.Value = strconv.Itoa(t.Check.Minimum)
+			targetText6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+			targetText6.Rows = 1
+			targetText6.MaxLength = textMaxLen
+			targetText6.Cols = textCols
+			targetText6.Value = t.Check.Address
+
 			col1.AppendChild(targetDelBut)
-			col2.SetTextContent(fmt.Sprintf("%s: %v", targetName, t))
+			col2.SetTextContent(targetName)
+			col3.AppendChild(targetText3)
+			col4.AppendChild(targetText4)
+			col5.AppendChild(targetText5)
+			col6.AppendChild(targetText6)
 
 			targetLine.AppendChild(col1)
 			targetLine.AppendChild(col2)
+			targetLine.AppendChild(col3)
+			targetLine.AppendChild(col4)
+			targetLine.AppendChild(col5)
+			targetLine.AppendChild(col6)
 
 			target := targetName
 
@@ -471,6 +510,18 @@ func loadRules() {
 			vInt, _ := strconv.Atoi(interval)
 			vTmout, _ := strconv.Atoi(timeout)
 			vMin, _ := strconv.Atoi(minimum)
+
+			if vInt < 1 {
+				vInt = 10
+			}
+
+			if vTmout < 1 {
+				vTmout = 5
+			}
+
+			if vMin < 1 {
+				vMin = 3
+			}
 
 			r := rule.Rule{
 				Targets: map[string]rule.Target{},
