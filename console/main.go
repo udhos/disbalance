@@ -269,8 +269,32 @@ func loadRules() {
 		}
 		sort.Strings(targetList)
 
+		targetAddDiv := d.CreateElement("div").(*dom.HTMLDivElement)
+
 		targetTab := d.CreateElement("div").(*dom.HTMLDivElement)
 		targetTab.SetClass("table")
+
+		c1 := d.CreateElement("div").(*dom.HTMLDivElement)
+		c2 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+		c1.SetClass("line")
+		c2.SetClass("line")
+
+		targetAddImg := d.CreateElement("img").(*dom.HTMLImageElement)
+		targetAddImg.Src = "/console/plus.png"
+		targetAddImg.Height = 16
+		targetAddImg.Width = 16
+		targetAddBut := d.CreateElement("button").(*dom.HTMLButtonElement)
+		targetAddBut.SetClass("unstyled-button")
+		targetAddBut.AppendChild(targetAddImg)
+
+		c1.AppendChild(targetAddBut)
+		c2.SetTextContent("fixme writeme")
+
+		targetAddDiv.AppendChild(c1)
+		targetAddDiv.AppendChild(c2)
+
+		s5.AppendChild(targetAddDiv)
 		s5.AppendChild(targetTab)
 
 		for _, targetName := range targetList {
