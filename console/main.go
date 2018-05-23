@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strconv"
 
 	//"github.com/gopherjs/gopherjs"
 	"gopkg.in/yaml.v2"
@@ -409,6 +410,61 @@ func loadRules() {
 		line.AppendChild(col3)
 		line.AppendChild(col4)
 		line.AppendChild(col5)
+
+		targetAdd := func(e dom.Event) {
+
+			target := text2.Value
+			log.Printf("targetAdd: rule=%s target=%s", name, target)
+
+			if target == "" {
+				log.Printf("targetAdd: empty target name")
+				return
+			}
+
+			interval := text3.Value
+			timeout := text4.Value
+			minimum := text5.Value
+			address := text6.Value
+
+			vInt, _ := strconv.Atoi(interval)
+			vTmout, _ := strconv.Atoi(timeout)
+			vMin, _ := strconv.Atoi(minimum)
+
+			r := rule.Rule{
+				Targets: map[string]rule.Target{},
+			}
+			r.Targets[target] = rule.Target{
+				Check: rule.HealthCheck{
+					Interval: vInt,
+					Timeout:  vTmout,
+					Minimum:  vMin,
+					Address:  address,
+				},
+			}
+
+			rules := map[string]rule.Rule{}
+			rules[name] = r
+
+			buf, errMarshal := yaml.Marshal(rules)
+			if errMarshal != nil {
+				log.Printf("targetAdd: marshal: %v", errMarshal)
+				return
+			}
+
+			// goroutine needed to prevent block
+			go func() {
+				_, errPost := httpPost("/api/rule/", "application/x-yaml", buf)
+				if errPost != nil {
+					log.Printf("targetAdd: rule=%s target=%s: error: %v", name, target, errPost)
+					return
+				}
+				log.Printf("targetAdd: rule=%s target=%s added", name, target)
+
+				loadRules()
+			}()
+		}
+
+		targetAddBut.AddEventListener("click", false, targetAdd)
 
 		tab.AppendChild(line)
 	}
