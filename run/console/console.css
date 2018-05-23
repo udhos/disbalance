@@ -38,7 +38,8 @@ textarea {
 }
 
 .rule-col5 {
-	width: 50%;
+	width: auto;
+	flex-grow: 100;
 }
 
 .cell {
@@ -61,4 +62,5 @@ textarea {
 
 .table-line {
 	width: 100%;
+	display: flex;
 }
