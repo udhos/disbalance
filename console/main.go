@@ -65,6 +65,7 @@ func loadRules() {
 	addImg.Width = 16
 	addText.Rows = 1
 	addText.MaxLength = 20
+	addText.Cols = 21
 	addTextDiv1.SetTextContent("rule name")
 	addProtoDiv1.SetTextContent("protocol")
 	addListenDiv1.SetTextContent("listener")
@@ -74,6 +75,7 @@ func loadRules() {
 	addProtoOpt2.Text = "udp"
 	addListen.Rows = 1
 	addListen.MaxLength = 20
+	addListen.Cols = 21
 
 	addSpan.AppendChild(addBut)
 	addTextDiv2.AppendChild(addText)
@@ -276,9 +278,62 @@ func loadRules() {
 
 		c1 := d.CreateElement("div").(*dom.HTMLDivElement)
 		c2 := d.CreateElement("div").(*dom.HTMLDivElement)
+		c3 := d.CreateElement("div").(*dom.HTMLDivElement)
+		c4 := d.CreateElement("div").(*dom.HTMLDivElement)
+		c5 := d.CreateElement("div").(*dom.HTMLDivElement)
+		c6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
 		c1.SetClass("line")
 		c2.SetClass("line")
+		c3.SetClass("line")
+		c4.SetClass("line")
+		c5.SetClass("line")
+		c6.SetClass("line")
+
+		h2 := d.CreateElement("div").(*dom.HTMLDivElement)
+		h3 := d.CreateElement("div").(*dom.HTMLDivElement)
+		h4 := d.CreateElement("div").(*dom.HTMLDivElement)
+		h5 := d.CreateElement("div").(*dom.HTMLDivElement)
+		h6 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+		h2.SetTextContent("target")
+		h3.SetTextContent("interval")
+		h4.SetTextContent("timeout")
+		h5.SetTextContent("minimum")
+		h6.SetTextContent("address")
+
+		text2 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		text2.Rows = 1
+		text2.MaxLength = 10
+		text2.Cols = 11
+		text3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		text3.Rows = 1
+		text3.MaxLength = 10
+		text3.Cols = 11
+		text4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		text4.Rows = 1
+		text4.MaxLength = 10
+		text4.Cols = 11
+		text5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		text5.Rows = 1
+		text5.MaxLength = 10
+		text5.Cols = 11
+		text6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
+		text6.Rows = 1
+		text6.MaxLength = 10
+		text6.Cols = 11
+
+		textDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+		textDiv3 := d.CreateElement("div").(*dom.HTMLDivElement)
+		textDiv4 := d.CreateElement("div").(*dom.HTMLDivElement)
+		textDiv5 := d.CreateElement("div").(*dom.HTMLDivElement)
+		textDiv6 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+		textDiv2.AppendChild(text2)
+		textDiv3.AppendChild(text3)
+		textDiv4.AppendChild(text4)
+		textDiv5.AppendChild(text5)
+		textDiv6.AppendChild(text6)
 
 		targetAddImg := d.CreateElement("img").(*dom.HTMLImageElement)
 		targetAddImg.Src = "/console/plus.png"
@@ -289,10 +344,23 @@ func loadRules() {
 		targetAddBut.AppendChild(targetAddImg)
 
 		c1.AppendChild(targetAddBut)
-		c2.SetTextContent("fixme writeme")
+		c2.AppendChild(h2)
+		c2.AppendChild(textDiv2)
+		c3.AppendChild(h3)
+		c3.AppendChild(textDiv3)
+		c4.AppendChild(h4)
+		c4.AppendChild(textDiv4)
+		c5.AppendChild(h5)
+		c5.AppendChild(textDiv5)
+		c6.AppendChild(h6)
+		c6.AppendChild(textDiv6)
 
 		targetAddDiv.AppendChild(c1)
 		targetAddDiv.AppendChild(c2)
+		targetAddDiv.AppendChild(c3)
+		targetAddDiv.AppendChild(c4)
+		targetAddDiv.AppendChild(c5)
+		targetAddDiv.AppendChild(c6)
 
 		s5.AppendChild(targetAddDiv)
 		s5.AppendChild(targetTab)
