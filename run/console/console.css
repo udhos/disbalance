@@ -19,7 +19,26 @@ textarea {
 
 .rule-delete-button {
 	display: inline-block;
-	width: 2%;
+}
+
+.rule-col1 {
+	width: 1%;
+}
+
+.rule-col2 {
+	width: 16%;
+}
+
+.rule-col3 {
+	width: 8%;
+}
+
+.rule-col4 {
+	width: 16%;
+}
+
+.rule-col5 {
+	width: 50%;
 }
 
 .cell {
@@ -33,7 +52,6 @@ textarea {
 	border-radius: 5px;
 	margin: 2px;
 	text-align: center;
-	width: 20%;
 }
 
 .table {

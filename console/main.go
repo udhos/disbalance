@@ -122,11 +122,11 @@ func loadRules() {
 		col4 := d.CreateElement("div").(*dom.HTMLDivElement)
 		col5 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-		col1.SetClass("rule-delete-button")
-		col2.SetClass("cell")
-		col3.SetClass("cell")
-		col4.SetClass("cell")
-		col5.SetClass("cell")
+		col1.SetClass("rule-col1 rule-delete-button")
+		col2.SetClass("rule-col2 cell")
+		col3.SetClass("rule-col3 cell")
+		col4.SetClass("rule-col4 cell")
+		col5.SetClass("rule-col5 cell")
 
 		s2 := d.CreateElement("span").(*dom.HTMLSpanElement)
 		s3 := d.CreateElement("span").(*dom.HTMLSpanElement)
@@ -296,11 +296,11 @@ func loadRules() {
 		h5 := d.CreateElement("div").(*dom.HTMLDivElement)
 		h6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-		h2.SetTextContent("tg")
-		h3.SetTextContent("intv")
-		h4.SetTextContent("tmo")
-		h5.SetTextContent("min")
-		h6.SetTextContent("addr")
+		h2.SetTextContent("target")
+		h3.SetTextContent("interval")
+		h4.SetTextContent("timeout")
+		h5.SetTextContent("minimum")
+		h6.SetTextContent("address")
 
 		maxLen := 30
 		cols := 4
