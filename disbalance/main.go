@@ -75,6 +75,8 @@ func main() {
 
 	registerStatic(&app, "/console/", consoleDir)
 
+	app.enableForwarders()
+
 	if tls {
 		log.Printf("serving HTTPS on TCP %s", controlAddress)
 		if err := http.ListenAndServeTLS(controlAddress, cert, key, nil); err != nil {

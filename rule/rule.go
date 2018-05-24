@@ -16,3 +16,12 @@ type Rule struct {
 	Listener string
 	Targets  map[string]Target
 }
+
+func (r *Rule) Clone() *Rule {
+	clone := *r
+	clone.Targets = map[string]Target{}
+	for tn, t := range r.Targets {
+		clone.Targets[tn] = t
+	}
+	return &clone
+}

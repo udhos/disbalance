@@ -49,6 +49,15 @@ type server struct {
 	fwd        map[string]forwarder
 }
 
+func (s *server) enableForwarders() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	for ruleName := range s.cfg.Rules {
+		s.forwardEnable(ruleName)
+	}
+}
+
 // get a lock before calling unsafeSave
 // will read from shared config
 // will write into shared file
