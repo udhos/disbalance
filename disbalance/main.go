@@ -24,13 +24,14 @@ func main() {
 
 	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))
 
-	runDir := os.Getenv("DISBALANCE_RUN")
+	runDirEnv := os.Getenv("DISBALANCE_RUN")
+	runDir := runDirEnv
 	if runDir == "" {
 		runDir = "run/"
 	} else if runDir[len(runDir)-1] != '/' {
 		runDir += "/"
 	}
-	log.Printf("run directory: %s", runDir)
+	log.Printf("env DISBALANCE_RUN=[%s] - run directory: [%s]", runDirEnv, runDir)
 
 	var controlAddress, consoleDir string
 	var key, cert string
