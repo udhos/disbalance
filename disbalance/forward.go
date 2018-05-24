@@ -7,6 +7,8 @@ import (
 type forwarder struct {
 }
 
+// beware: these methods hold an exclusive lock on the server
+
 func (s *server) forwardEnable(ruleName string) {
 	log.Printf("forwardEnable: rule=%s", ruleName)
 }
