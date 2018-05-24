@@ -46,6 +46,7 @@ type server struct {
 	configPath string
 	apis       []string
 	lock       sync.RWMutex
+	fwd        map[string]forwarder
 }
 
 // get a lock before calling unsafeSave
@@ -128,6 +129,8 @@ func (s *server) ruleDel(name string) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+	s.forwardDisable(name)
+
 	delete(s.cfg.Rules, name)
 
 	unsafeSave(&s.cfg, s.configPath)
@@ -137,7 +140,11 @@ func (s *server) rulePut(name string, r rule.Rule) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+	s.forwardDisable(name)
+
 	s.cfg.Rules[name] = r // fully replace old rule, if any
+
+	s.forwardEnable(name)
 
 	unsafeSave(&s.cfg, s.configPath)
 }
@@ -151,14 +158,17 @@ func (s *server) rulePost(rules map[string]rule.Rule) {
 		if oldRule, found := s.cfg.Rules[name]; found {
 			// new rule found
 			// update old rule
+			s.forwardDisable(name)
 			update := ruleUpdate(name, oldRule, newRule)
 			s.cfg.Rules[name] = update
+			s.forwardEnable(name)
 			continue
 		}
 
 		// new rule not found
 		// append new rule
 		s.cfg.Rules[name] = newRule
+		s.forwardEnable(name)
 	}
 
 	unsafeSave(&s.cfg, s.configPath)

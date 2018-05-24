@@ -20,6 +20,7 @@ func main() {
 	app.cfg = config{
 		Rules: map[string]rule.Rule{},
 	}
+	app.fwd = map[string]forwarder{}
 
 	log.Printf("version %s runtime %s GOMAXPROCS=%d", version, runtime.Version(), runtime.GOMAXPROCS(0))
 
