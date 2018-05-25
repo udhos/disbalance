@@ -3,14 +3,9 @@ package main
 import (
 	"log"
 	"net"
-	"time"
 
 	"github.com/udhos/disbalance/rule"
 )
-
-type checker struct {
-	done chan struct{}
-}
 
 type targetHealth struct {
 	target string
@@ -125,132 +120,4 @@ LOOP:
 	for _, c := range checks {
 		close(c.done) // request goroutine termination
 	}
-}
-
-func newInactiveTimer() *time.Timer {
-	t := time.NewTimer(time.Second)
-	if !t.Stop() {
-		<-t.C // drain https://golang.org/pkg/time/#Timer.Reset
-	}
-	return t
-}
-
-func service_listen(ruleName, proto, listen string, enable chan bool, conn chan net.Conn) {
-	log.Printf("listen: rule=%s proto=%s listen=%s starting", ruleName, proto, listen)
-
-	listenRetry := time.Duration(3) * time.Second
-	listenTimeout := time.Duration(3) * time.Second
-	var tcpL *net.TCPListener
-	listenTimer := newInactiveTimer()
-	acceptTimer := newInactiveTimer()
-
-	stop := func() {
-		acceptTimer.Stop()
-		listenTimer.Stop()
-		if tcpL != nil {
-			tcpL.Close() // shutdown listener
-			tcpL = nil
-		}
-	}
-
-LOOP:
-	for {
-		select {
-		case e, ok := <-enable:
-			log.Printf("listen: rule=%s proto=%s listen=%s enable=%v", ruleName, proto, listen, e)
-			if !ok {
-				stop()
-				break LOOP
-			}
-			if e {
-				// request for start
-				listenTimer.Reset(0) // schedule new listener
-			} else {
-				// request for stop
-				stop()
-			}
-		case <-listenTimer.C:
-			ln, errListen := net.Listen(proto, listen)
-			if errListen != nil {
-				log.Printf("listen: rule=%s proto=%s listen=%s error=%v", ruleName, proto, listen, errListen)
-				listenTimer.Reset(listenRetry) // reschedule listen
-				continue LOOP
-			}
-			var isTcp bool
-			tcpL, isTcp = ln.(*net.TCPListener)
-			if !isTcp {
-				log.Printf("listen: rule=%s proto=%s listen=%s not tcp listener: %v", ruleName, proto, listen, ln)
-				ln.Close()
-				listenTimer.Reset(listenRetry) // reschedule listen
-				continue LOOP
-			}
-			log.Printf("listen: rule=%s proto=%s listen=%s listener created: %v", ruleName, proto, listen, tcpL)
-			acceptTimer.Reset(0) // schedule accept
-		case <-acceptTimer.C:
-			deadline := time.Now().Add(listenTimeout)
-			if errDeadline := tcpL.SetDeadline(time.Now().Add(listenTimeout)); errDeadline != nil {
-				log.Printf("listen: rule=%s proto=%s listen=%s deadline=%v error=%v", ruleName, proto, listen, deadline, errDeadline)
-				tcpL.Close()
-				listenTimer.Reset(listenRetry) // reschedule listen
-				continue LOOP
-			}
-			newConn, errAccept := tcpL.Accept()
-			acceptTimer.Reset(0) // reschedule accept
-			if errAccept != nil {
-				log.Printf("listen: rule=%s proto=%s listen=%s accept=%v", ruleName, proto, listen, errAccept)
-				continue LOOP
-			}
-			log.Printf("listen: rule=%s proto=%s listen=%s new connection", ruleName, proto, listen)
-			conn <- newConn // send new conn to forwarder
-		}
-	}
-
-	log.Printf("listen: rule=%s proto=%s listen=%s stopping", ruleName, proto, listen)
-}
-
-func service_check(ruleName, proto, targetName string, target rule.Target, chk checker, health chan targetHealth) {
-	log.Printf("check: rule=%s target=%s starting", ruleName, targetName)
-
-	checkAddress := target.Check.Address
-	if checkAddress == "" {
-		checkAddress = targetName
-	}
-
-	timeout := time.Duration(target.Check.Timeout) * time.Second
-
-	ticker := time.NewTicker(time.Duration(target.Check.Interval) * time.Second)
-
-	var status bool
-	var up, down int
-LOOP:
-	for {
-		conn, err := net.DialTimeout(proto, checkAddress, timeout)
-		log.Printf("check: rule=%s target=%s check=%s err=%v up=%d down=%d status=%v", ruleName, targetName, checkAddress, err, up, down, status)
-		if err == nil {
-			conn.Close()
-			down = 0
-			up++
-			if !status && up >= target.Check.Minimum {
-				status = true
-				health <- targetHealth{targetName, true}
-			}
-		} else {
-			up = 0
-			down++
-			if status && down >= target.Check.Minimum {
-				status = false
-				health <- targetHealth{targetName, false}
-			}
-		}
-
-		select {
-		case <-chk.done:
-			break LOOP
-		case <-ticker.C:
-		}
-	}
-
-	ticker.Stop()
-
-	log.Printf("check: rule=%s target=%s stopping", ruleName, targetName)
 }
