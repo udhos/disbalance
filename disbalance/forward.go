@@ -127,16 +127,22 @@ LOOP:
 	}
 }
 
+func newInactiveTimer() *time.Timer {
+	t := time.NewTimer(time.Second)
+	if !t.Stop() {
+		<-t.C // drain https://golang.org/pkg/time/#Timer.Reset
+	}
+	return t
+}
+
 func service_listen(ruleName, proto, listen string, enable chan bool, conn chan net.Conn) {
 	log.Printf("listen: rule=%s proto=%s listen=%s starting", ruleName, proto, listen)
 
-	listenTimer := time.NewTimer(0)
-	listenTimer.Stop() // create inactive timer
 	listenRetry := time.Duration(3) * time.Second
 	listenTimeout := time.Duration(3) * time.Second
 	var tcpL *net.TCPListener
-	acceptTimer := time.NewTimer(0)
-	listenTimer.Stop() // create inactive timer
+	listenTimer := newInactiveTimer()
+	acceptTimer := newInactiveTimer()
 
 	stop := func() {
 		acceptTimer.Stop()
@@ -178,7 +184,7 @@ LOOP:
 				listenTimer.Reset(listenRetry) // reschedule listen
 				continue LOOP
 			}
-			log.Printf("listen: rule=%s proto=%s listen=%s listener created", ruleName, proto, listen)
+			log.Printf("listen: rule=%s proto=%s listen=%s listener created: %v", ruleName, proto, listen, tcpL)
 			acceptTimer.Reset(0) // schedule accept
 		case <-acceptTimer.C:
 			deadline := time.Now().Add(listenTimeout)
