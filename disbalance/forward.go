@@ -75,8 +75,13 @@ func (s *server) forwardDisable(ruleName string) {
 func service_forward(ruleName, proto string, f forwarder) {
 	log.Printf("forward: rule=%s starting", ruleName)
 
-	var checks []checker
+	// spawn listener
+	listenEnable := make(chan bool)   // send requests to listener
+	listenConn := make(chan net.Conn) // receive connections from listener
+	go service_listen(ruleName, proto, f.rule.Listener, listenEnable, listenConn)
 
+	// spawn health checkers
+	var checks []checker
 	for t, target := range f.rule.Targets {
 		c := checker{
 			done: make(chan struct{}),
@@ -96,18 +101,47 @@ LOOP:
 			if h.status {
 				healthTable[h.target] = struct{}{}
 				healthyTargets++
+				if healthyTargets == 1 {
+					listenEnable <- true // enable listener
+				}
 			} else {
 				delete(healthTable, h.target)
 				healthyTargets--
+				if healthyTargets == 0 {
+					listenEnable <- false // disable listener
+				}
 			}
 			log.Printf("forward: rule=%s target=%s status=%v healthyTargets=%d", ruleName, h.target, h.status, healthyTargets)
+		case conn := <-listenConn:
+			log.Printf("forward: rule=%s new connection from listener=%s: %v", ruleName, f.rule.Listener, conn)
 		}
 	}
 	log.Printf("forward: rule=%s stopping", ruleName)
 
+	// stop listener
+	close(listenEnable)
+
+	// stop health checkers
 	for _, c := range checks {
 		close(c.done) // request goroutine termination
 	}
+}
+
+func service_listen(ruleName, proto, listen string, enable chan bool, conn chan net.Conn) {
+	log.Printf("listen: rule=%s proto=%s listen=%s starting", ruleName, proto, listen)
+
+LOOP:
+	for {
+		select {
+		case e, ok := <-enable:
+			if !ok {
+				break LOOP
+			}
+			log.Printf("listen: rule=%s proto=%s listen=%s enable=%v", ruleName, proto, listen, e)
+		}
+	}
+
+	log.Printf("listen: rule=%s proto=%s listen=%s stopping", ruleName, proto, listen)
 }
 
 func service_check(ruleName, proto, targetName string, target rule.Target, c checker, health chan targetHealth) {
