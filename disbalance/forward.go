@@ -67,6 +67,13 @@ func (s *server) forwardDisable(ruleName string) {
 	delete(s.fwd, ruleName)
 }
 
+func inheritPort(child, parent string) string {
+	if getPort(child) == "" {
+		child += getPort(parent) // force port into child
+	}
+	return child
+}
+
 func service_forward(ruleName string, f forwarder) {
 	log.Printf("forward: rule=%s starting", ruleName)
 
@@ -82,6 +89,9 @@ func service_forward(ruleName string, f forwarder) {
 			done: make(chan struct{}),
 		}
 		checks = append(checks, c)
+
+		t = inheritPort(t, f.rule.Listener)
+
 		go service_check(ruleName, f.rule.Protocol, t, target, c, f.health)
 	}
 
