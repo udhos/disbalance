@@ -8,6 +8,7 @@ import (
 
 type forwarder struct {
 	rule rule.Rule
+	done chan struct{}
 }
 
 // beware: these methods hold an exclusive lock on the server
@@ -30,9 +31,12 @@ func (s *server) forwardEnable(ruleName string) {
 
 	f = forwarder{
 		rule: *r.Clone(),
+		done: make(chan struct{}),
 	}
 
 	s.fwd[ruleName] = f
+
+	go service_forward(ruleName, f)
 }
 
 func (s *server) forwardDisable(ruleName string) {
@@ -44,11 +48,25 @@ func (s *server) forwardDisable(ruleName string) {
 		return
 	}
 
-	_, foundF := s.fwd[ruleName]
+	f, foundF := s.fwd[ruleName]
 	if !foundF {
 		log.Printf("forwardDisable: not found forwarder: rule=%s", ruleName)
 		return
 	}
 
+	close(f.done) // request termination
+
 	delete(s.fwd, ruleName)
+}
+
+func service_forward(ruleName string, f forwarder) {
+	log.Printf("forwarder: rule=%s starting", ruleName)
+LOOP:
+	for {
+		select {
+		case <-f.done:
+			break LOOP
+		}
+	}
+	log.Printf("forwarder: rule=%s stopping", ruleName)
 }
