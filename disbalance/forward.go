@@ -20,7 +20,6 @@ type targetHealth struct {
 type forwarder struct {
 	rule   rule.Rule
 	done   chan struct{}
-	checks []checker
 	health chan targetHealth
 }
 
@@ -76,33 +75,37 @@ func (s *server) forwardDisable(ruleName string) {
 func service_forward(ruleName, proto string, f forwarder) {
 	log.Printf("forward: rule=%s starting", ruleName)
 
+	var checks []checker
+
 	for t, target := range f.rule.Targets {
 		c := checker{
 			done: make(chan struct{}),
 		}
-		f.checks = append(f.checks, c)
+		checks = append(checks, c)
 		go service_check(ruleName, proto, t, target, c, f.health)
 	}
 
 	healthTable := map[string]struct{}{}
-
+	healthyTargets := 0
 LOOP:
 	for {
 		select {
 		case <-f.done:
 			break LOOP
 		case h := <-f.health:
-			log.Printf("forward: rule=%s target=%s healthy=%v", ruleName, h.target, h.status)
 			if h.status {
 				healthTable[h.target] = struct{}{}
+				healthyTargets++
 			} else {
 				delete(healthTable, h.target)
+				healthyTargets--
 			}
+			log.Printf("forward: rule=%s target=%s status=%v healthyTargets=%d", ruleName, h.target, h.status, healthyTargets)
 		}
 	}
 	log.Printf("forward: rule=%s stopping", ruleName)
 
-	for _, c := range f.checks {
+	for _, c := range checks {
 		close(c.done) // request goroutine termination
 	}
 }
@@ -126,22 +129,18 @@ LOOP:
 		_, err := net.DialTimeout(proto, checkAddress, timeout)
 		log.Printf("check: rule=%s target=%s check=%s err=%v up=%d down=%d status=%v", ruleName, targetName, checkAddress, err, up, down, status)
 		if err == nil {
-			if !status {
-				up++
-				down = 0
-				if up >= target.Check.Minimum {
-					health <- targetHealth{targetName, true}
-					status = true
-				}
+			down = 0
+			up++
+			if !status && up >= target.Check.Minimum {
+				status = true
+				health <- targetHealth{targetName, true}
 			}
 		} else {
-			if status {
-				down++
-				up = 0
-				if down >= target.Check.Minimum {
-					health <- targetHealth{targetName, false}
-					status = false
-				}
+			up = 0
+			down++
+			if status && down >= target.Check.Minimum {
+				status = false
+				health <- targetHealth{targetName, false}
 			}
 		}
 
