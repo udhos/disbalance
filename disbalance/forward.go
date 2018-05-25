@@ -144,7 +144,7 @@ LOOP:
 	log.Printf("listen: rule=%s proto=%s listen=%s stopping", ruleName, proto, listen)
 }
 
-func service_check(ruleName, proto, targetName string, target rule.Target, c checker, health chan targetHealth) {
+func service_check(ruleName, proto, targetName string, target rule.Target, chk checker, health chan targetHealth) {
 	log.Printf("check: rule=%s target=%s starting", ruleName, targetName)
 
 	checkAddress := target.Check.Address
@@ -160,9 +160,10 @@ func service_check(ruleName, proto, targetName string, target rule.Target, c che
 	var up, down int
 LOOP:
 	for {
-		_, err := net.DialTimeout(proto, checkAddress, timeout)
+		conn, err := net.DialTimeout(proto, checkAddress, timeout)
 		log.Printf("check: rule=%s target=%s check=%s err=%v up=%d down=%d status=%v", ruleName, targetName, checkAddress, err, up, down, status)
 		if err == nil {
+			conn.Close()
 			down = 0
 			up++
 			if !status && up >= target.Check.Minimum {
@@ -179,7 +180,7 @@ LOOP:
 		}
 
 		select {
-		case <-c.done:
+		case <-chk.done:
 			break LOOP
 		case <-ticker.C:
 		}
