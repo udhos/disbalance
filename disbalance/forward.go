@@ -49,7 +49,7 @@ func (s *server) forwardEnable(ruleName string) {
 
 	s.fwd[ruleName] = f
 
-	go service_forward(ruleName, r.Protocol, f)
+	go service_forward(ruleName, f)
 }
 
 func (s *server) forwardDisable(ruleName string) {
@@ -72,13 +72,13 @@ func (s *server) forwardDisable(ruleName string) {
 	delete(s.fwd, ruleName)
 }
 
-func service_forward(ruleName, proto string, f forwarder) {
+func service_forward(ruleName string, f forwarder) {
 	log.Printf("forward: rule=%s starting", ruleName)
 
 	// spawn listener
 	listenEnable := make(chan bool)   // send requests to listener
 	listenConn := make(chan net.Conn) // receive connections from listener
-	go service_listen(ruleName, proto, f.rule.Listener, listenEnable, listenConn)
+	go service_listen(ruleName, f.rule.Protocol, f.rule.Listener, listenEnable, listenConn)
 
 	// spawn health checkers
 	var checks []checker
@@ -87,7 +87,7 @@ func service_forward(ruleName, proto string, f forwarder) {
 			done: make(chan struct{}),
 		}
 		checks = append(checks, c)
-		go service_check(ruleName, proto, t, target, c, f.health)
+		go service_check(ruleName, f.rule.Protocol, t, target, c, f.health)
 	}
 
 	healthTable := map[string]struct{}{}
