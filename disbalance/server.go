@@ -117,13 +117,7 @@ func (s *server) checkDump() ([]byte, error) {
 		tab[rule] = f.healthyPool.cloneTable()
 	}
 
-	log.Printf("server.checkDump: %v", tab)
-
-	buf, err := yaml.Marshal(tab)
-
-	log.Printf("server.checkDump: %s", buf)
-
-	return buf, err
+	return yaml.Marshal(tab)
 }
 
 func (s *server) ruleTable() map[string]rule.Rule {

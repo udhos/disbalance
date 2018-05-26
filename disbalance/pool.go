@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"sort"
 	"sync"
 	"time"
@@ -35,8 +34,6 @@ func (p *pool) cloneTable() map[string]checkStatus {
 		tab[n] = c
 	}
 
-	log.Printf("pool.cloneTable: %v", tab)
-
 	return tab
 }
 
@@ -57,7 +54,6 @@ func (p *pool) add(target string) {
 		Up:    true,
 		Since: time.Now(),
 	}
-	log.Printf("pool.add: %v", p.table)
 	p.update()
 }
 
@@ -68,7 +64,6 @@ func (p *pool) del(target string) {
 		Up:    false,
 		Since: time.Now(),
 	}
-	log.Printf("pool.del: %v", p.table)
 	p.update()
 }
 
