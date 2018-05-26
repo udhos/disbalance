@@ -46,7 +46,7 @@ case "$1" in
 	;;
 	*)
 		msg invalid argument: "$1"
-		echo >&2 usage: $(basename $0) [remove]
+		echo >&2 usage: $0 [remove]
 		exit 2
 	;;
 esac
