@@ -50,10 +50,11 @@ func loadRules() {
 	addProtoDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
 	addProtoOpt1 := d.CreateElement("option").(*dom.HTMLOptionElement)
 	addProtoOpt2 := d.CreateElement("option").(*dom.HTMLOptionElement)
-	addListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 	addListenSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
 	addListenDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
 	addListenDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+
+	addListen := newInputText(d, addListenDiv2.BasicNode, 20, 30)
 
 	addBut.SetClass("unstyled-button")
 	addSpan.SetClass("line")
@@ -71,9 +72,6 @@ func loadRules() {
 	addProtoOpt1.Text = "tcp"
 	addProtoOpt2.Value = "udp"
 	addProtoOpt2.Text = "udp"
-	addListen.Rows = 1
-	addListen.MaxLength = 20
-	addListen.Cols = 21
 
 	addSpan.AppendChild(addBut)
 	addTextSpan.AppendChild(addTextDiv1)
@@ -83,7 +81,6 @@ func loadRules() {
 	addProtoDiv2.AppendChild(addProto)
 	addProtoSpan.AppendChild(addProtoDiv1)
 	addProtoSpan.AppendChild(addProtoDiv2)
-	addListenDiv2.AppendChild(addListen)
 	addListenSpan.AppendChild(addListenDiv1)
 	addListenSpan.AppendChild(addListenDiv2)
 	addBut.AppendChild(addImg)
