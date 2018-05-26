@@ -33,11 +33,11 @@ Delete rule 'rule1':
 
 Create/update inline rule 'rule1':
 
-    curl -u admin:admin -X POST -d '{rule1: {protocol: tcp}}' localhost:8080/api/rule/
+    curl -u admin:admin -X POST -d '{rule1: {listener: ":2000", protocol: tcp, targets: {2.2.2.2:80: {}}}}' localhost:8080/api/rule/
 
 Replace inline rule 'rule1':
 
-    curl -u admin:admin -X PUT -d '{listener: ":2000"}' localhost:8080/api/rule/rule1
+    curl -u admin:admin -X PUT -d '{listener: ":3000", targets: {3.3.3.3:80: {}}}' localhost:8080/api/rule/rule1
 
 Save rule list to file 'rules':
 

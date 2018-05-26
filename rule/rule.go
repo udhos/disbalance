@@ -25,3 +25,33 @@ func (r *Rule) Clone() *Rule {
 	}
 	return &clone
 }
+
+func (r *Rule) ForceValidChecks() {
+	for tn, t := range r.Targets {
+		t.Check = NewCheck(t.Check.Interval, t.Check.Timeout, t.Check.Minimum, t.Check.Address)
+		r.Targets[tn] = t // update: overwrite
+	}
+}
+
+func NewCheck(vInt, vTmout, vMin int, addr string) HealthCheck {
+	if vInt < 1 {
+		vInt = 3
+	}
+
+	if vTmout < 1 {
+		vTmout = 2
+	}
+
+	if vMin < 1 {
+		vMin = 1
+	}
+
+	c := HealthCheck{
+		Interval: vInt,
+		Timeout:  vTmout,
+		Minimum:  vMin,
+		Address:  addr,
+	}
+
+	return c
+}

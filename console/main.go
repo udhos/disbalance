@@ -575,28 +575,13 @@ func loadRules() {
 			vTmout, _ := strconv.Atoi(timeout)
 			vMin, _ := strconv.Atoi(minimum)
 
-			if vInt < 1 {
-				vInt = 10
-			}
-
-			if vTmout < 1 {
-				vTmout = 5
-			}
-
-			if vMin < 1 {
-				vMin = 3
-			}
+			c := rule.NewCheck(vInt, vTmout, vMin, address)
 
 			r := rule.Rule{
 				Targets: map[string]rule.Target{},
 			}
 			r.Targets[target] = rule.Target{
-				Check: rule.HealthCheck{
-					Interval: vInt,
-					Timeout:  vTmout,
-					Minimum:  vMin,
-					Address:  address,
-				},
+				Check: c,
 			}
 
 			rules := map[string]rule.Rule{}

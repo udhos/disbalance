@@ -87,7 +87,7 @@ func rulePut(w http.ResponseWriter, r *http.Request, app *server) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("rulePost: body: %v", err)
+		log.Printf("rulePut: body: %v", err)
 		http.Error(w, "Internal server error", 500)
 		return
 	}
@@ -99,6 +99,8 @@ func rulePut(w http.ResponseWriter, r *http.Request, app *server) {
 		http.Error(w, "Bad request", 400)
 		return
 	}
+
+	ruleSingle.ForceValidChecks()
 
 	app.rulePut(name, ruleSingle)
 
@@ -154,6 +156,10 @@ func rulePost(w http.ResponseWriter, r *http.Request, app *server) {
 		log.Printf("rulePost: unmarshal: %v", errYaml)
 		http.Error(w, "Bad request", 400)
 		return
+	}
+
+	for _, r := range rules {
+		r.ForceValidChecks()
 	}
 
 	app.rulePost(rules)
