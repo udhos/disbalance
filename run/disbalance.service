@@ -1,0 +1,14 @@
+[Unit]
+Description=Disbalance Service
+After=network.target
+
+[Service]
+Environment=DISBALANCE_RUN=/var/run/disbalance
+Type=simple
+User=root
+WorkingDirectory=/var/run/disbalance
+ExecStart=/usr/local/sbin/disbalance
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
