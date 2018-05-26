@@ -207,7 +207,7 @@ func loadRules() {
 					return
 				}
 
-				t := e.Target().(*dom.HTMLTextAreaElement)
+				t := e.Target().(*dom.HTMLInputElement)
 				listenNew := strings.TrimSpace(t.Value)
 				t.Value = listenNew
 
@@ -251,14 +251,12 @@ func loadRules() {
 			editProto.SelectedIndex = 1
 		}
 		editProto.AddEventListener("change", false, ruleProto)
-		editListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		editListen.Rows = 1
+		editListen := newInputText(d, s4.BasicNode, 20, 30)
 		editListen.Value = strings.TrimSpace(r.Listener)
 		editListen.AddEventListener("change", false, ruleListen)
 
 		s2.SetTextContent(ruleName)
 		s3.AppendChild(editProto)
-		s4.AppendChild(editListen)
 
 		// sort targets by name
 		targetList := make([]string, 0, len(r.Targets))
