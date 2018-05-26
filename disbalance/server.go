@@ -106,6 +106,26 @@ func (s *server) apiList() []string {
 	return s.apis
 }
 
+func (s *server) checkDump() ([]byte, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	// tab: rule(string) => target(string) => checkStatus(struct)
+	tab := map[string]map[string]checkStatus{}
+
+	for rule, f := range s.fwd {
+		tab[rule] = f.healthyPool.cloneTable()
+	}
+
+	log.Printf("server.checkDump: %v", tab)
+
+	buf, err := yaml.Marshal(tab)
+
+	log.Printf("server.checkDump: %s", buf)
+
+	return buf, err
+}
+
 func (s *server) ruleTable() map[string]rule.Rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()

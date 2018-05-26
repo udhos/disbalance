@@ -16,9 +16,10 @@ type targetHealth struct {
 }
 
 type forwarder struct {
-	rule   rule.Rule
-	done   chan struct{}
-	health chan targetHealth
+	rule        rule.Rule
+	done        chan struct{}
+	health      chan targetHealth
+	healthyPool *pool
 }
 
 // beware: these methods hold an exclusive lock on the server
@@ -40,9 +41,10 @@ func (s *server) forwardEnable(ruleName string) {
 	}
 
 	f = forwarder{
-		rule:   *r.Clone(),
-		done:   make(chan struct{}),
-		health: make(chan targetHealth),
+		rule:        *r.Clone(),
+		done:        make(chan struct{}),
+		health:      make(chan targetHealth),
+		healthyPool: newPool(),
 	}
 
 	s.fwd[ruleName] = f
@@ -98,8 +100,7 @@ func service_forward(ruleName string, f forwarder) {
 		go service_check(ruleName, f.rule.Protocol, t, target, c, f.health)
 	}
 
-	healthyPool := newPool()
-	healthyTargets := 0
+	var healthyTargets int
 LOOP:
 	for {
 		select {
@@ -107,13 +108,13 @@ LOOP:
 			break LOOP
 		case h := <-f.health:
 			if h.status {
-				healthyPool.add(h.target)
+				f.healthyPool.add(h.target)
 				healthyTargets++
 				if healthyTargets == 1 {
 					listenEnable <- true // enable listener
 				}
 			} else {
-				healthyPool.del(h.target)
+				f.healthyPool.del(h.target)
 				healthyTargets--
 				if healthyTargets == 0 {
 					listenEnable <- false // disable listener
@@ -122,7 +123,7 @@ LOOP:
 			log.Printf("forward: rule=%s target=%s status=%v healthyTargets=%d", ruleName, h.target, h.status, healthyTargets)
 		case conn := <-listenConn:
 			log.Printf("forward: rule=%s new connection from listener=%s: %v", ruleName, f.rule.Listener, conn)
-			go connect(ruleName, f.rule.Protocol, conn, healthyPool)
+			go connect(ruleName, f.rule.Protocol, conn, f.healthyPool)
 		}
 	}
 	log.Printf("forward: rule=%s stopping", ruleName)

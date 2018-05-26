@@ -1,45 +1,74 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"sync"
+	"time"
 )
 
+type checkStatus struct {
+	Up    bool
+	Since time.Time
+}
+
 type pool struct {
-	table   map[string]struct{}
-	targets []string
-	lock    sync.RWMutex
-	next    int
+	table     map[string]checkStatus
+	targetsUp []string
+	lock      sync.RWMutex
+	next      int
 }
 
 func newPool() *pool {
 	p := &pool{
-		table: map[string]struct{}{},
+		table: map[string]checkStatus{},
 	}
 	return p
 }
 
+func (p *pool) cloneTable() map[string]checkStatus {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
+
+	tab := map[string]checkStatus{}
+	for n, c := range p.table {
+		tab[n] = c
+	}
+
+	log.Printf("pool.cloneTable: %v", tab)
+
+	return tab
+}
+
 func (p *pool) update() {
-	p.targets = make([]string, len(p.table), len(p.table))
+	p.targetsUp = make([]string, len(p.table), len(p.table))
 	var i int
 	for t := range p.table {
-		p.targets[i] = t
+		p.targetsUp[i] = t
 		i++
 	}
-	sort.Strings(p.targets)
+	sort.Strings(p.targetsUp)
 }
 
 func (p *pool) add(target string) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
-	p.table[target] = struct{}{}
+	p.table[target] = checkStatus{
+		Up:    true,
+		Since: time.Now(),
+	}
+	log.Printf("pool.add: %v", p.table)
 	p.update()
 }
 
 func (p *pool) del(target string) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
-	delete(p.table, target)
+	p.table[target] = checkStatus{
+		Up:    false,
+		Since: time.Now(),
+	}
+	log.Printf("pool.del: %v", p.table)
 	p.update()
 }
 
@@ -47,12 +76,12 @@ func (p *pool) getNext() string {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	if len(p.targets) < 1 {
+	if len(p.targetsUp) < 1 {
 		return ""
 	}
-	t := p.targets[p.next]
+	t := p.targetsUp[p.next]
 	p.next++
-	if p.next >= len(p.targets) {
+	if p.next >= len(p.targetsUp) {
 		p.next = 0
 	}
 	return t
