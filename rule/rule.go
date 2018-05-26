@@ -35,15 +35,15 @@ func (r *Rule) ForceValidChecks() {
 
 func NewCheck(vInt, vTmout, vMin int, addr string) HealthCheck {
 	if vInt < 1 {
-		vInt = 3
+		vInt = 5
 	}
 
 	if vTmout < 1 {
-		vTmout = 2
+		vTmout = 5
 	}
 
 	if vMin < 1 {
-		vMin = 1
+		vMin = 3
 	}
 
 	c := HealthCheck{

@@ -18,7 +18,7 @@ func service_listen(ruleName, proto, listen string, enable chan bool, conn chan 
 	log.Printf("listen: rule=%s proto=%s listen=%s starting", ruleName, proto, listen)
 
 	listenRetry := time.Duration(3) * time.Second
-	listenTimeout := time.Duration(3) * time.Second
+	listenTimeout := time.Duration(5) * time.Second
 	var tcpL *net.TCPListener
 	listenTimer := newInactiveTimer()
 	acceptTimer := newInactiveTimer()
@@ -67,7 +67,7 @@ LOOP:
 			acceptTimer.Reset(0) // schedule accept
 		case <-acceptTimer.C:
 			deadline := time.Now().Add(listenTimeout)
-			if errDeadline := tcpL.SetDeadline(time.Now().Add(listenTimeout)); errDeadline != nil {
+			if errDeadline := tcpL.SetDeadline(deadline); errDeadline != nil {
 				log.Printf("listen: rule=%s proto=%s listen=%s deadline=%v error=%v", ruleName, proto, listen, deadline, errDeadline)
 				tcpL.Close()
 				listenTimer.Reset(listenRetry) // reschedule listen
