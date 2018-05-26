@@ -302,7 +302,7 @@ func loadRules() {
 		h5.SetTextContent("minimum")
 		h6.SetTextContent("address")
 
-		maxLen := 30
+		maxLen := 80
 		cols := 10
 
 		text2 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
@@ -398,6 +398,7 @@ func loadRules() {
 			textMaxLen := 30
 			textCols := 15
 			numCols := 5
+			addrMaxLen := 80
 
 			targetText3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText3.Rows = 1
@@ -416,7 +417,7 @@ func loadRules() {
 			targetText5.Value = strconv.Itoa(t.Check.Minimum)
 			targetText6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 			targetText6.Rows = 1
-			targetText6.MaxLength = textMaxLen
+			targetText6.MaxLength = addrMaxLen
 			targetText6.Cols = textCols
 			targetText6.Value = t.Check.Address
 
