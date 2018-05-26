@@ -369,35 +369,24 @@ func loadRules() {
 			targetDelImg.Width = 16
 			targetDelBut.AppendChild(targetDelImg)
 
-			textMaxLen := 30
+			maxLen := 30
 			textCols := 15
 			numCols := 5
 			addrMaxLen := 80
 
-			targetText3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-			targetText3.Rows = 1
-			targetText3.MaxLength = textMaxLen
-			targetText3.Cols = numCols
+			targetText3 := newInputText(d, col3.BasicNode, numCols, maxLen)
+			targetText4 := newInputText(d, col4.BasicNode, numCols, maxLen)
+			targetText5 := newInputText(d, col5.BasicNode, numCols, maxLen)
+			targetText6 := newInputText(d, col6.BasicNode, textCols, addrMaxLen)
+
 			targetText3.Value = strconv.Itoa(t.Check.Interval)
-			targetText4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-			targetText4.Rows = 1
-			targetText4.MaxLength = textMaxLen
-			targetText4.Cols = numCols
 			targetText4.Value = strconv.Itoa(t.Check.Timeout)
-			targetText5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-			targetText5.Rows = 1
-			targetText5.MaxLength = textMaxLen
-			targetText5.Cols = numCols
 			targetText5.Value = strconv.Itoa(t.Check.Minimum)
-			targetText6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-			targetText6.Rows = 1
-			targetText6.MaxLength = addrMaxLen
-			targetText6.Cols = textCols
 			targetText6.Value = t.Check.Address
 
 			target := targetName
 
-			targetEdit := func(e dom.Event, f func(update *rule.Target, txt *dom.HTMLTextAreaElement)) {
+			targetEdit := func(e dom.Event, f func(update *rule.Target, txt *dom.HTMLInputElement)) {
 				url := "/api/rule/" + name
 				log.Printf("targetEdit: rule=%s target=%s url=%s", name, target, url)
 
@@ -416,7 +405,7 @@ func loadRules() {
 						return
 					}
 
-					txt := e.Target().(*dom.HTMLTextAreaElement)
+					txt := e.Target().(*dom.HTMLInputElement)
 
 					trg := old.Targets[target]
 					f(&trg, txt)              // change
@@ -461,10 +450,6 @@ func loadRules() {
 
 			col1.AppendChild(targetDelBut)
 			col2.SetTextContent(targetName)
-			col3.AppendChild(targetText3)
-			col4.AppendChild(targetText4)
-			col5.AppendChild(targetText5)
-			col6.AppendChild(targetText6)
 
 			targetLine.AppendChild(col1)
 			targetLine.AppendChild(col2)
@@ -625,7 +610,7 @@ func loadRules() {
 	addBut.AddEventListener("click", false, ruleAdd)
 }
 
-func targetSetInterval(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+func targetSetInterval(update *rule.Target, txt *dom.HTMLInputElement) {
 	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetInterval: old=%v new=%v", update.Check.Interval, value)
 	v, _ := strconv.Atoi(value)
@@ -633,7 +618,7 @@ func targetSetInterval(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetTimeout(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+func targetSetTimeout(update *rule.Target, txt *dom.HTMLInputElement) {
 	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetTimeout: old=%v new=%v", update.Check.Timeout, value)
 	v, _ := strconv.Atoi(value)
@@ -641,7 +626,7 @@ func targetSetTimeout(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetMinimum(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+func targetSetMinimum(update *rule.Target, txt *dom.HTMLInputElement) {
 	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetMinimum: old=%v new=%v", update.Check.Minimum, value)
 	v, _ := strconv.Atoi(value)
@@ -649,7 +634,7 @@ func targetSetMinimum(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 	txt.Value = strconv.Itoa(v)
 }
 
-func targetSetAddress(update *rule.Target, txt *dom.HTMLTextAreaElement) {
+func targetSetAddress(update *rule.Target, txt *dom.HTMLInputElement) {
 	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetAddress: old=%v new=%v", update.Check.Address, value)
 	update.Check.Address = value
