@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"sync"
 )
 
@@ -25,6 +26,7 @@ func (p *pool) update() {
 		p.targets[i] = t
 		i++
 	}
+	sort.Strings(p.targets)
 }
 
 func (p *pool) add(target string) {

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/udhos/disbalance/rule"
@@ -165,7 +167,19 @@ func connect(ruleName, proto string, src net.Conn, p *pool) {
 }
 
 func dataCopy(ruleName, target string, src, dst net.Conn) {
-	log.Printf("dataCopy: rule=%s target=%s", ruleName, target)
+	log.Printf("dataCopy: rule=%s target=%s begin", ruleName, target)
+
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+
+	go func() { io.Copy(src, dst); wg.Done() }()
+	go func() { io.Copy(dst, src); wg.Done() }()
+
+	wg.Wait()
+
 	dst.Close()
 	src.Close()
+
+	log.Printf("dataCopy: rule=%s target=%s end", ruleName, target)
 }
