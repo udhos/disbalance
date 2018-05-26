@@ -40,10 +40,10 @@ func loadRules() {
 	addSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
 	addBut := d.CreateElement("button").(*dom.HTMLButtonElement)
 	addImg := d.CreateElement("img").(*dom.HTMLImageElement)
-	addText := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 	addTextSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
 	addTextDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
 	addTextDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
+	addText := newInputText(d, addTextDiv2.BasicNode, 20, 30)
 	addProto := d.CreateElement("select").(*dom.HTMLSelectElement)
 	addProtoSpan := d.CreateElement("span").(*dom.HTMLSpanElement)
 	addProtoDiv1 := d.CreateElement("div").(*dom.HTMLDivElement)
@@ -64,9 +64,6 @@ func loadRules() {
 	addImg.Src = "/console/plus.png"
 	addImg.Height = 16
 	addImg.Width = 16
-	addText.Rows = 1
-	addText.MaxLength = 20
-	addText.Cols = 21
 	addTextDiv1.SetTextContent("rule name")
 	addProtoDiv1.SetTextContent("protocol")
 	addListenDiv1.SetTextContent("listener")
@@ -79,7 +76,6 @@ func loadRules() {
 	addListen.Cols = 21
 
 	addSpan.AppendChild(addBut)
-	addTextDiv2.AppendChild(addText)
 	addTextSpan.AppendChild(addTextDiv1)
 	addTextSpan.AppendChild(addTextDiv2)
 	addProto.AppendChild(addProtoOpt1)
