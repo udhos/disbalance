@@ -296,41 +296,21 @@ func loadRules() {
 		h5.SetTextContent("minimum")
 		h6.SetTextContent("address")
 
-		maxLen := 80
-		cols := 10
-
-		text2 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		text2.Rows = 1
-		text2.MaxLength = maxLen
-		text2.Cols = cols
-		text3 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		text3.Rows = 1
-		text3.MaxLength = maxLen
-		text3.Cols = cols
-		text4 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		text4.Rows = 1
-		text4.MaxLength = maxLen
-		text4.Cols = cols
-		text5 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		text5.Rows = 1
-		text5.MaxLength = maxLen
-		text5.Cols = cols
-		text6 := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
-		text6.Rows = 1
-		text6.MaxLength = maxLen
-		text6.Cols = cols
-
 		textDiv2 := d.CreateElement("div").(*dom.HTMLDivElement)
 		textDiv3 := d.CreateElement("div").(*dom.HTMLDivElement)
 		textDiv4 := d.CreateElement("div").(*dom.HTMLDivElement)
 		textDiv5 := d.CreateElement("div").(*dom.HTMLDivElement)
 		textDiv6 := d.CreateElement("div").(*dom.HTMLDivElement)
 
-		textDiv2.AppendChild(text2)
-		textDiv3.AppendChild(text3)
-		textDiv4.AppendChild(text4)
-		textDiv5.AppendChild(text5)
-		textDiv6.AppendChild(text6)
+		maxLen := 80
+		colsNum := 10
+		colsText := 20
+
+		text2 := newInputText(d, textDiv2.BasicNode, colsText, maxLen)
+		text3 := newInputText(d, textDiv3.BasicNode, colsNum, maxLen)
+		text4 := newInputText(d, textDiv4.BasicNode, colsNum, maxLen)
+		text5 := newInputText(d, textDiv5.BasicNode, colsNum, maxLen)
+		text6 := newInputText(d, textDiv6.BasicNode, colsText, maxLen)
 
 		targetAddImg := d.CreateElement("img").(*dom.HTMLImageElement)
 		targetAddImg.Src = "/console/plus.png"
