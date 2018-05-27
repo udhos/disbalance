@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"time"
 
 	"github.com/udhos/disbalance/rule"
 )
@@ -95,7 +96,7 @@ func service_forward(ruleName string, f forwarder) {
 		go service_check(ruleName, f.rule.Protocol, t, target, c, f.health)
 	}
 
-	healthTable := map[string]struct{}{}
+	healthyPool := newPool()
 	healthyTargets := 0
 LOOP:
 	for {
@@ -104,13 +105,13 @@ LOOP:
 			break LOOP
 		case h := <-f.health:
 			if h.status {
-				healthTable[h.target] = struct{}{}
+				healthyPool.add(h.target)
 				healthyTargets++
 				if healthyTargets == 1 {
 					listenEnable <- true // enable listener
 				}
 			} else {
-				delete(healthTable, h.target)
+				healthyPool.del(h.target)
 				healthyTargets--
 				if healthyTargets == 0 {
 					listenEnable <- false // disable listener
@@ -119,6 +120,7 @@ LOOP:
 			log.Printf("forward: rule=%s target=%s status=%v healthyTargets=%d", ruleName, h.target, h.status, healthyTargets)
 		case conn := <-listenConn:
 			log.Printf("forward: rule=%s new connection from listener=%s: %v", ruleName, f.rule.Listener, conn)
+			go connect(ruleName, f.rule.Protocol, conn, healthyPool)
 		}
 	}
 	log.Printf("forward: rule=%s stopping", ruleName)
@@ -130,4 +132,38 @@ LOOP:
 	for _, c := range checks {
 		close(c.done) // request goroutine termination
 	}
+}
+
+func connect(ruleName, proto string, src net.Conn, p *pool) {
+
+	timeout := time.Duration(5) * time.Second
+	maxRetry := 3
+
+	for i := 0; i < maxRetry; i++ {
+		target := p.getNext()
+		log.Printf("connect: rule=%s target=%s", ruleName, target)
+		if target == "" {
+			log.Printf("connect: rule=%s no available target", ruleName)
+			break
+		}
+
+		dst, errDial := net.DialTimeout(proto, target, timeout)
+		if errDial != nil {
+			log.Printf("connect: rule=%s target=%s: dial error: %v", ruleName, target, errDial)
+			continue
+		}
+
+		log.Printf("connect: rule=%s target=%s connected!", ruleName, target)
+
+		dataCopy(ruleName, target, src, dst)
+		return
+	}
+
+	src.Close() // drop source connection
+}
+
+func dataCopy(ruleName, target string, src, dst net.Conn) {
+	log.Printf("dataCopy: rule=%s target=%s", ruleName, target)
+	dst.Close()
+	src.Close()
 }
