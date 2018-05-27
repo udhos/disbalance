@@ -141,23 +141,25 @@ func connect(ruleName, proto string, src net.Conn, p *pool) {
 
 	for i := 0; i < maxRetry; i++ {
 		target := p.getNext()
-		log.Printf("connect: rule=%s target=%s", ruleName, target)
+		log.Printf("connect %d/%d: rule=%s target=%s", i, maxRetry, ruleName, target)
 		if target == "" {
-			log.Printf("connect: rule=%s no available target", ruleName)
+			log.Printf("connect %d/%d: rule=%s no available target", i, maxRetry, ruleName)
 			break
 		}
 
 		dst, errDial := net.DialTimeout(proto, target, timeout)
 		if errDial != nil {
-			log.Printf("connect: rule=%s target=%s: dial error: %v", ruleName, target, errDial)
+			log.Printf("connect %d/%d: rule=%s target=%s: dial error: %v", i, maxRetry, ruleName, target, errDial)
 			continue
 		}
 
-		log.Printf("connect: rule=%s target=%s connected!", ruleName, target)
+		log.Printf("connect %d/%d: rule=%s target=%s connected!", i, maxRetry, ruleName, target)
 
 		dataCopy(ruleName, target, src, dst)
 		return
 	}
+
+	log.Printf("connect: rule=%s could not connect to target", ruleName)
 
 	src.Close() // drop source connection
 }
