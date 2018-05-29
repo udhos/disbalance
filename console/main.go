@@ -4,6 +4,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"strings"
 
 	//"github.com/gopherjs/gopherjs"
 	"gopkg.in/yaml.v2"
@@ -172,7 +173,8 @@ func loadRules() {
 
 				t := e.Target()
 				s := t.(*dom.HTMLSelectElement)
-				protoNew := s.Value
+				protoNew := strings.TrimSpace(s.Value)
+				s.Value = protoNew
 
 				log.Printf("ruleProto: old=%s new=%s", old.Protocol, protoNew)
 				old.Protocol = protoNew
@@ -213,7 +215,8 @@ func loadRules() {
 				}
 
 				t := e.Target().(*dom.HTMLTextAreaElement)
-				listenNew := t.Value
+				listenNew := strings.TrimSpace(t.Value)
+				t.Value = listenNew
 
 				log.Printf("ruleListen: old=%s new=%s", old.Listener, listenNew)
 				old.Listener = listenNew
@@ -257,7 +260,7 @@ func loadRules() {
 		editProto.AddEventListener("change", false, ruleProto)
 		editListen := d.CreateElement("textarea").(*dom.HTMLTextAreaElement)
 		editListen.Rows = 1
-		editListen.Value = r.Listener
+		editListen.Value = strings.TrimSpace(r.Listener)
 		editListen.AddEventListener("change", false, ruleListen)
 
 		s2.SetTextContent(ruleName)
@@ -558,7 +561,7 @@ func loadRules() {
 
 		targetAdd := func(e dom.Event) {
 
-			target := text2.Value
+			target := strings.TrimSpace(text2.Value)
 			log.Printf("targetAdd: rule=%s target=%s", name, target)
 
 			if target == "" {
@@ -566,10 +569,10 @@ func loadRules() {
 				return
 			}
 
-			interval := text3.Value
-			timeout := text4.Value
-			minimum := text5.Value
-			address := text6.Value
+			interval := strings.TrimSpace(text3.Value)
+			timeout := strings.TrimSpace(text4.Value)
+			minimum := strings.TrimSpace(text5.Value)
+			address := strings.TrimSpace(text6.Value)
 
 			vInt, _ := strconv.Atoi(interval)
 			vTmout, _ := strconv.Atoi(timeout)
@@ -613,15 +616,15 @@ func loadRules() {
 
 	ruleAdd := func(e dom.Event) {
 
-		name := addText.Value
+		name := strings.TrimSpace(addText.Value)
 		if name == "" {
 			log.Printf("add: empty name")
 			return
 		}
 
 		newRule := rule.Rule{
-			Protocol: addProto.Value,
-			Listener: addListen.Value,
+			Protocol: strings.TrimSpace(addProto.Value),
+			Listener: strings.TrimSpace(addListen.Value),
 		}
 		// addText addProto addListen
 
@@ -652,7 +655,7 @@ func loadRules() {
 }
 
 func targetSetInterval(update *rule.Target, txt *dom.HTMLTextAreaElement) {
-	value := txt.Value
+	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetInterval: old=%v new=%v", update.Check.Interval, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Interval = v
@@ -660,7 +663,7 @@ func targetSetInterval(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 }
 
 func targetSetTimeout(update *rule.Target, txt *dom.HTMLTextAreaElement) {
-	value := txt.Value
+	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetTimeout: old=%v new=%v", update.Check.Timeout, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Timeout = v
@@ -668,7 +671,7 @@ func targetSetTimeout(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 }
 
 func targetSetMinimum(update *rule.Target, txt *dom.HTMLTextAreaElement) {
-	value := txt.Value
+	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetMinimum: old=%v new=%v", update.Check.Minimum, value)
 	v, _ := strconv.Atoi(value)
 	update.Check.Minimum = v
@@ -676,7 +679,7 @@ func targetSetMinimum(update *rule.Target, txt *dom.HTMLTextAreaElement) {
 }
 
 func targetSetAddress(update *rule.Target, txt *dom.HTMLTextAreaElement) {
-	value := txt.Value
+	value := strings.TrimSpace(txt.Value)
 	log.Printf("targetSetAddress: old=%v new=%v", update.Check.Address, value)
 	update.Check.Address = value
 }
