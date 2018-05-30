@@ -28,16 +28,31 @@ func getPort(addr string) string {
 	return port
 }
 
+// host:port => host
+func getHost(addr string) string {
+	bracket := strings.LastIndexByte(addr, ']')
+	if bracket > 0 {
+		return addr[:bracket+1]
+	}
+	colon := strings.LastIndexByte(addr, ':')
+	if colon < 0 {
+		return addr
+	}
+	return addr[:colon]
+}
+
+func inheritHost(child, parent string) string {
+	if getHost(child) == "" {
+		child = getHost(parent) + child // force host into child
+	}
+	return child
+}
+
 func service_check(ruleName, proto, targetName string, target rule.Target, chk checker, health chan targetHealth) {
 	log.Printf("check: rule=%s target=%s starting", ruleName, targetName)
 
 	checkAddress := target.Check.Address
-
-	// check inherits address from target
-	if checkAddress == "" {
-		checkAddress = targetName
-	}
-
+	checkAddress = inheritHost(checkAddress, targetName)
 	checkAddress = inheritPort(checkAddress, targetName)
 
 	log.Printf("check: rule=%s target=%s check=%s", ruleName, targetName, checkAddress)
@@ -51,7 +66,7 @@ func service_check(ruleName, proto, targetName string, target rule.Target, chk c
 LOOP:
 	for {
 		conn, err := net.DialTimeout(proto, checkAddress, timeout)
-		log.Printf("check: rule=%s target=%s check=%s err=%v up=%d down=%d status=%v", ruleName, targetName, checkAddress, err, up, down, status)
+		log.Printf("check: rule=%s target=%s check=%s up=%d down=%d status=%v err: %v", ruleName, targetName, checkAddress, up, down, status, err)
 		if err == nil {
 			conn.Close()
 			down = 0
