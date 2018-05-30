@@ -41,7 +41,13 @@ Create the rule with this information:
     target:    localhost:8001
     target:    localhost:8002
 
-3. Visit http://localhost:8000. Your web traffic should be distributed between localhost:8001 and localhost:8002.
+3. Visit http://localhost:8000.
+
+Example:
+
+    curl http://localhost:8000
+
+Your web traffic should be distributed between localhost:8001 and localhost:8002.
 
 API
 ===
