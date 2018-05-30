@@ -38,11 +38,11 @@ func (p *pool) cloneTable() map[string]checkStatus {
 }
 
 func (p *pool) update() {
-	p.targetsUp = make([]string, len(p.table), len(p.table))
-	var i int
-	for t := range p.table {
-		p.targetsUp[i] = t
-		i++
+	p.targetsUp = make([]string, 0, len(p.table))
+	for t, c := range p.table {
+		if c.Up {
+			p.targetsUp = append(p.targetsUp, t)
+		}
 	}
 	sort.Strings(p.targetsUp)
 }
@@ -74,10 +74,10 @@ func (p *pool) getNext() string {
 	if len(p.targetsUp) < 1 {
 		return ""
 	}
-	t := p.targetsUp[p.next]
 	p.next++
 	if p.next >= len(p.targetsUp) {
 		p.next = 0
 	}
+	t := p.targetsUp[p.next]
 	return t
 }
