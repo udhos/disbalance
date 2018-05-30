@@ -120,6 +120,20 @@ func (s *server) checkDump() ([]byte, error) {
 	return yaml.Marshal(tab)
 }
 
+func (s *server) connDump() ([]byte, error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	// tab: rule(string) => target(string) => int
+	tab := map[string]map[string]int{}
+
+	for rule, f := range s.fwd {
+		tab[rule] = f.conns.cloneTable()
+	}
+
+	return yaml.Marshal(tab)
+}
+
 func (s *server) ruleTable() map[string]rule.Rule {
 	s.lock.RLock()
 	defer s.lock.RUnlock()

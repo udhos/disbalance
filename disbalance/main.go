@@ -74,6 +74,7 @@ func main() {
 	registerApi(&app, "/api/", serveApi)
 	registerApi(&app, "/api/rule/", serveApiRule)
 	registerApi(&app, "/api/check/", serveApiCheck)
+	registerApi(&app, "/api/conn/", serveApiConn)
 
 	registerStatic(&app, "/console/", consoleDir)
 

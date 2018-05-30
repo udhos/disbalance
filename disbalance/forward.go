@@ -20,6 +20,7 @@ type forwarder struct {
 	done        chan struct{}
 	health      chan targetHealth
 	healthyPool *pool
+	conns       *connTable
 }
 
 // beware: these methods hold an exclusive lock on the server
@@ -45,6 +46,7 @@ func (s *server) forwardEnable(ruleName string) {
 		done:        make(chan struct{}),
 		health:      make(chan targetHealth),
 		healthyPool: newPool(),
+		conns:       newConnTable(),
 	}
 
 	s.fwd[ruleName] = f
@@ -123,7 +125,7 @@ LOOP:
 			log.Printf("forward: rule=%s target=%s status=%v healthyTargets=%d", ruleName, h.target, h.status, healthyTargets)
 		case conn := <-listenConn:
 			log.Printf("forward: rule=%s new connection from listener=%s: %v", ruleName, f.rule.Listener, conn)
-			go connect(ruleName, f.rule.Protocol, conn, f.healthyPool)
+			go connect(ruleName, f.rule.Protocol, conn, f.healthyPool, f.conns)
 		}
 	}
 	log.Printf("forward: rule=%s stopping", ruleName)
@@ -137,7 +139,7 @@ LOOP:
 	}
 }
 
-func connect(ruleName, proto string, src net.Conn, p *pool) {
+func connect(ruleName, proto string, src net.Conn, p *pool, conns *connTable) {
 
 	timeout := time.Duration(5) * time.Second
 	maxRetry := 3
@@ -158,7 +160,7 @@ func connect(ruleName, proto string, src net.Conn, p *pool) {
 
 		log.Printf("connect %d/%d: rule=%s target=%s connected!", i, maxRetry, ruleName, target)
 
-		dataCopy(ruleName, target, src, dst)
+		dataCopy(ruleName, target, src, dst, conns)
 		return
 	}
 
@@ -167,11 +169,12 @@ func connect(ruleName, proto string, src net.Conn, p *pool) {
 	src.Close() // drop source connection
 }
 
-func dataCopy(ruleName, target string, src, dst net.Conn) {
+func dataCopy(ruleName, target string, src, dst net.Conn, conns *connTable) {
 	log.Printf("dataCopy: rule=%s target=%s begin", ruleName, target)
 
-	var wg sync.WaitGroup
+	conns.add(target)
 
+	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() { io.Copy(src, dst); wg.Done() }()
@@ -181,6 +184,8 @@ func dataCopy(ruleName, target string, src, dst net.Conn) {
 
 	dst.Close()
 	src.Close()
+
+	conns.del(target)
 
 	log.Printf("dataCopy: rule=%s target=%s end", ruleName, target)
 }

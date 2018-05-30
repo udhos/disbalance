@@ -52,6 +52,23 @@ func serveApiCheck(w http.ResponseWriter, r *http.Request, app *server) {
 	writeBuf("serveApiCheck", w, out)
 }
 
+func serveApiConn(w http.ResponseWriter, r *http.Request, app *server) {
+	log.Printf("serveApiConn: url=%s from=%s", r.URL.Path, r.RemoteAddr)
+
+	if authOk := auth(w, r, app); !authOk {
+		return
+	}
+
+	out, errDump := app.connDump()
+	if errDump != nil {
+		log.Printf("connDump: %v", errDump)
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+
+	writeBuf("serveApiConn", w, out)
+}
+
 // https://stackoverflow.com/questions/630453/put-vs-post-in-rest
 //
 // POST to a URL creates a child resource at a server defined URL.
