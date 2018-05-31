@@ -1,3 +1,6 @@
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/udhos/disbalance/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/udhos/disbalance)](https://goreportcard.com/report/github.com/udhos/disbalance)
+
 # disbalance
 disbalance - automagic load balancer
 
