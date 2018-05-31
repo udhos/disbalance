@@ -48,7 +48,7 @@ func inheritHost(child, parent string) string {
 	return child
 }
 
-func service_check(ruleName, proto, targetName string, target rule.Target, chk checker, health chan targetHealth) {
+func serviceCheck(ruleName, proto, targetName string, target rule.Target, chk checker, health chan targetHealth) {
 	log.Printf("check: rule=%s target=%s starting", ruleName, targetName)
 
 	checkAddress := target.Check.Address

@@ -9,6 +9,8 @@ go tool fix ./*/*.go
 go tool vet ./console
 go tool vet ./disbalance
 
+hash golint && golint disbalance rule console
+
 go test -v ./disbalance
 go install ./disbalance
 

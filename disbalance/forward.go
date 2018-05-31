@@ -51,7 +51,7 @@ func (s *server) forwardEnable(ruleName string) {
 
 	s.fwd[ruleName] = f
 
-	go service_forward(ruleName, f)
+	go serviceForward(ruleName, f)
 }
 
 func (s *server) forwardDisable(ruleName string) {
@@ -81,13 +81,13 @@ func inheritPort(child, parent string) string {
 	return child
 }
 
-func service_forward(ruleName string, f forwarder) {
+func serviceForward(ruleName string, f forwarder) {
 	log.Printf("forward: rule=%s starting", ruleName)
 
 	// spawn listener
 	listenEnable := make(chan bool)   // send requests to listener
 	listenConn := make(chan net.Conn) // receive connections from listener
-	go service_listen(ruleName, f.rule.Protocol, f.rule.Listener, listenEnable, listenConn)
+	go serviceListen(ruleName, f.rule.Protocol, f.rule.Listener, listenEnable, listenConn)
 
 	// spawn health checkers
 	var checks []checker
@@ -99,7 +99,7 @@ func service_forward(ruleName string, f forwarder) {
 
 		t = inheritPort(t, f.rule.Listener)
 
-		go service_check(ruleName, f.rule.Protocol, t, target, c, f.health)
+		go serviceCheck(ruleName, f.rule.Protocol, t, target, c, f.health)
 	}
 
 	var healthyTargets int

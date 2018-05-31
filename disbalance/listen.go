@@ -14,7 +14,7 @@ func newInactiveTimer() *time.Timer {
 	return t
 }
 
-func service_listen(ruleName, proto, listen string, enable chan bool, conn chan net.Conn) {
+func serviceListen(ruleName, proto, listen string, enable chan bool, conn chan net.Conn) {
 	log.Printf("listen: rule=%s proto=%s listen=%s starting", ruleName, proto, listen)
 
 	listenRetry := time.Duration(3) * time.Second
@@ -55,9 +55,9 @@ LOOP:
 				listenTimer.Reset(listenRetry) // reschedule listen
 				continue LOOP
 			}
-			var isTcp bool
-			tcpL, isTcp = ln.(*net.TCPListener)
-			if !isTcp {
+			var isTCP bool
+			tcpL, isTCP = ln.(*net.TCPListener)
+			if !isTCP {
 				log.Printf("listen: rule=%s proto=%s listen=%s not tcp listener: %v", ruleName, proto, listen, ln)
 				ln.Close()
 				listenTimer.Reset(listenRetry) // reschedule listen

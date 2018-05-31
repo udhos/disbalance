@@ -71,10 +71,10 @@ func main() {
 		http.Error(w, "Not found", 404)
 	})
 
-	registerApi(&app, "/api/", serveApi)
-	registerApi(&app, "/api/rule/", serveApiRule)
-	registerApi(&app, "/api/check/", serveApiCheck)
-	registerApi(&app, "/api/conn/", serveApiConn)
+	registerAPI(&app, "/api/", serveAPI)
+	registerAPI(&app, "/api/rule/", serveAPIRule)
+	registerAPI(&app, "/api/check/", serveAPICheck)
+	registerAPI(&app, "/api/conn/", serveAPIConn)
 
 	registerStatic(&app, "/console/", consoleDir)
 

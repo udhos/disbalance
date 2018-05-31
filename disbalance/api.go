@@ -29,13 +29,13 @@ func writeStr(caller string, w http.ResponseWriter, s string) {
 
 type apiHandler func(w http.ResponseWriter, r *http.Request, app *server)
 
-func registerApi(app *server, path string, handler apiHandler) {
+func registerAPI(app *server, path string, handler apiHandler) {
 	log.Printf("registering api: %s", path)
 	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) { handler(w, r, app) })
 	app.apis = append(app.apis, path)
 }
 
-func serveApiCheck(w http.ResponseWriter, r *http.Request, app *server) {
+func serveAPICheck(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApiCheck: url=%s from=%s", r.URL.Path, r.RemoteAddr)
 
 	if authOk := auth(w, r, app); !authOk {
@@ -52,7 +52,7 @@ func serveApiCheck(w http.ResponseWriter, r *http.Request, app *server) {
 	writeBuf("serveApiCheck", w, out)
 }
 
-func serveApiConn(w http.ResponseWriter, r *http.Request, app *server) {
+func serveAPIConn(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApiConn: url=%s from=%s", r.URL.Path, r.RemoteAddr)
 
 	if authOk := auth(w, r, app); !authOk {
@@ -75,7 +75,7 @@ func serveApiConn(w http.ResponseWriter, r *http.Request, app *server) {
 // PUT to a URL creates/replaces the resource in its entirety at the client defined URL.
 // PATCH to a URL updates part of the resource at that client defined URL.
 
-func serveApiRule(w http.ResponseWriter, r *http.Request, app *server) {
+func serveAPIRule(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApiRule: url=%s from=%s", r.URL.Path, r.RemoteAddr)
 
 	if authOk := auth(w, r, app); !authOk {
@@ -201,7 +201,7 @@ func rulePost(w http.ResponseWriter, r *http.Request, app *server) {
 	http.Error(w, fmt.Sprintf("Rules updated: %d", len(rules)), 200)
 }
 
-func serveApi(w http.ResponseWriter, r *http.Request, app *server) {
+func serveAPI(w http.ResponseWriter, r *http.Request, app *server) {
 	log.Printf("serveApi: url=%s from=%s", r.URL.Path, r.RemoteAddr)
 
 	if authOk := auth(w, r, app); !authOk {
