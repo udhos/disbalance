@@ -11,7 +11,7 @@ go tool vet ./disbalance
 
 hash golint && golint disbalance rule console
 
-go test -v ./disbalance
+go test ./disbalance
 go install ./disbalance
 
 go build -o ./run/disbalance ./disbalance
