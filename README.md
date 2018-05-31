@@ -4,6 +4,23 @@
 # disbalance
 disbalance - automagic load balancer
 
+* [Features](#features)
+* [Quick Start](#quick-start)
+* [HTTPS](#https)
+* [How to test](#how-to-test)
+* [API](#api)
+* [Install](#install)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
+Features
+========
+
+- Minimal required configuration. You are supposed to fire up disbalance and start using it.
+- Configuration automatically kept as YAML file. You are not required to edit it by hand.
+- Integrated web console. Use the web interface to quickly define load balancing rules.
+- REST API. Use the API to dynamically combine the load balancer with other services.
+
 Quick Start
 ===========
 
@@ -78,6 +95,15 @@ Save rule list to file 'rules':
 Load rule list from file 'rules':
 
     curl -u admin:admin --data-binary @rules -X POST localhost:8080/api/rule/
+
+Install
+=======
+
+You can install disbalance as a systemd service by running the install.sh script:
+
+    sudo ./install.sh
+
+    sudo ./install.sh remove ;# this removes disbalance service from systemd
 
 -x-
 
