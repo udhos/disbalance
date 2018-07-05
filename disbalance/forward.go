@@ -177,13 +177,10 @@ func dataCopy(ruleName, target string, src, dst net.Conn, conns *connTable) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	go func() { io.Copy(src, dst); wg.Done() }()
-	go func() { io.Copy(dst, src); wg.Done() }()
+	go func() { io.Copy(src, dst); src.Close(); wg.Done() }()
+	go func() { io.Copy(dst, src); dst.Close(); wg.Done() }()
 
 	wg.Wait()
-
-	dst.Close()
-	src.Close()
 
 	conns.del(target)
 
