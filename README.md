@@ -13,26 +13,23 @@ disbalance - automagic load balancer
 
 Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
-Features
-========
+# Features
 
 - Minimal required configuration. You are supposed to fire up disbalance and start using it.
 - Configuration automatically kept as YAML file. You are not required to edit it by hand.
 - Integrated web console. Use the web interface to quickly define load balancing rules.
 - REST API. Use the API to dynamically combine the load balancer with other services.
 
-Quick Start
-===========
+# Quick Start
 
-    go get github.com/udhos/disbalance
-    cd ~/go/src/github.com/udhos/disbalance
+    git clone https://github.com/udhos/disbalance
+    cd disbalance
     ./build.sh
     disbalance
 
 Then open http://localhost:8080/console
 
-HTTPS
-=====
+# HTTPS
 
 If you want to use TLS for the console, you will need a certificate:
 
@@ -40,8 +37,7 @@ If you want to use TLS for the console, you will need a certificate:
 
 Then start disbalance and open https://localhost:8080/console
 
-How to test
-===========
+# How to test
 
 1. Run webservers on ports 8001 and 8002.
 
@@ -69,8 +65,7 @@ Example:
 
 Your web traffic should be distributed between localhost:8001 and localhost:8002.
 
-API
-===
+# API
 
 Get rule list:
 
@@ -96,8 +91,7 @@ Load rule list from file 'rules':
 
     curl -u admin:admin --data-binary @rules -X POST localhost:8080/api/rule/
 
-Install
-=======
+# Install
 
 You can install disbalance as a systemd service by running the install.sh script:
 
