@@ -32,6 +32,8 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 ## With Modules, starting from Go 1.11
 
+Warning: gopherjs currently can't build the 'console' application using Modules. See https://github.com/gopherjs/gopherjs/issues/881.
+
     git clone https://github.com/udhos/disbalance ;# clone outside of GOPATH
     cd disbalance
     ./build-modules.sh ;# currently fails because gopherjs does not support Go Modules yet
