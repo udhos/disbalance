@@ -22,9 +22,19 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
 
 # Quick Start
 
-    git clone https://github.com/udhos/disbalance
+## Without Modules, before Go 1.11
+
+    # make sure GOPATH is either unset or set to ~/go
+    go get github.com/udhos/disbalance
+    cd ~/go/src/github.com/udhos/disbalance
+    ./build-nomodules.sh
+    disbalance
+
+## With Modules, starting from Go 1.11
+
+    git clone https://github.com/udhos/disbalance ;# clone outside of GOPATH
     cd disbalance
-    ./build.sh
+    ./build-modules.sh ;# currently fails because gopherjs does not support Go Modules yet
     disbalance
 
 Then open http://localhost:8080/console

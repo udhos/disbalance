@@ -2,9 +2,6 @@
 
 go get github.com/gopherjs/gopherjs
 
-#go get gopkg.in/yaml.v2
-#go get honnef.co/go/js/dom
-
 gofmt -s -w ./*/*.go
 go tool fix ./*/*.go
 go tool vet ./console
