@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export GO111MODULE=off
+
 go get github.com/gopherjs/gopherjs
 
 go get gopkg.in/yaml.v2
