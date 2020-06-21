@@ -1,13 +1,14 @@
 #!/bin/bash
 
-go get github.com/gopherjs/gopherjs
+export CGO_ENABLED=0
+export GO111MODULE=on
 
 gofmt -s -w ./*/*.go
 go tool fix ./*/*.go
-go tool vet ./console
-go tool vet ./disbalance
+go vet ./console
+go vet ./disbalance
 
-hash golint && golint disbalance rule console
+hash golint 2>/dev/null && golint disbalance rule console
 
 go test ./disbalance
 go install ./disbalance
